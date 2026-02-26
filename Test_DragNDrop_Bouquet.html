@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flash bouquet builder</title>
+  <style>
+    :root { --bg:#36373e; --panel:#d8c1c7; --ink:#e7ffe9; --muted:#2e262e; --line:#b2c39c; --accent:#eac9eb; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--ink); }
+    header { background:#7b8c7d; padding:12px 16px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:center; justify-content:space-between; }
+    header .left { display:flex; gap:12px; align-items:center; }
+    header .title { font-weight:900; color:#d8c1c7;}
+    header .hint { color:#000000; font-size:13px;}
+    header .btns { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    button {
+      background: #d8c1c7; color:#111111; border: 1px solid var(--line);
+      padding: 8px 10px; border-radius:10px; cursor:pointer; font-size:13px;
+    }
+    button:hover { border-color:#ffffff; }
+    button.primary { border-color: rgba(122,162,255,.6); box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset; }
+    main { display:grid; grid-template-columns: 320px 1fr; height: calc(100vh - 54px); }
+    aside { border-right:1px solid var(--line); background:var(--panel); padding:12px; overflow:auto; }
+    .section { margin-bottom:14px; }
+    .section h3 { margin:0 0 8px 0; font-size:13px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:10px;
+    }
+    .card {
+      background:#7b8c7d; border:1px solid var(--line); border-radius:12px;
+      padding:12px; cursor:pointer; user-select:none;
+      display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center;
+      min-height:130px;
+    }
+    .card:hover { border-color:#ffffff; }
+    .card img { width:96px; height:96px; object-fit:contain; display:block; }
+    .card .label { font-size:12px; font-weight: 600; color:var(--muted); text-align:center; }
+
+    .controls { display:grid; gap:8px; }
+    .row { display:grid; grid-template-columns: 120px 1fr; gap:8px; align-items:center; }
+    .row label { color:var(--muted); font-size:12px; }
+    input[type="range"] { width:100%; }
+    input[type="number"], input[type="text"] {
+      width:100%; background:#7b8c7d; border:1px solid var(--line); color:var(--ink);
+      padding:8px 10px; border-radius:10px;
+    }
+    .tiny { font-size:12px; color:var(--muted); line-height:1.35; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; border:1px solid var(--line); padding:2px 6px; border-radius:8px; background:#0f1118; color:var(--ink); }
+    .workwrap { padding:12px; overflow:auto; }
+    .workspace {
+      position:relative;
+      width: 900px; height: 900px;
+      margin:0 auto;
+      background: repeating-conic-gradient(from 90deg, rgba(0,0,0,.05) 0 25%, rgba(0,0,0,.02) 0 50%) 0 / 40px 40px;
+      border:1px solid var(--line);
+      border-radius:16px;
+    }
+    .workspace::after{
+      content:""; position:absolute; inset:14px; border:1px dashed rgba(255,255,255,.12); border-radius:12px; pointer-events:none;
+    }
+    .item {
+      position:absolute;
+      transform-origin: center center;
+      cursor:grab;
+      user-select:none;
+      touch-action:none;
+    }
+    .item:active { cursor:grabbing; }
+    .item.selected { outline:2px solid rgba(122,162,255,.9); outline-offset:4px; border-radius:10px; }
+
+    .item img { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; }
+
+    .badge {
+      position:absolute; top:-10px; left:-10px;
+      font-size:11px; color:#0b0c10;
+      background:rgba(122,162,255,.9);
+      padding:2px 6px; border-radius:999px;
+      pointer-events:none;
+    }
+    .dropNote {
+      color:var(--muted); font-size:12px; text-align:center; margin-top:10px;
+    }
+    .toast {
+      position:fixed; bottom:12px; left:50%; transform:translateX(-50%);
+      background:#10131c; border:1px solid var(--line); color:var(--ink);
+      padding:10px 12px; border-radius:12px; font-size:13px; opacity:0; pointer-events:none;
+      transition: opacity .18s ease;
+    }
+    .toast.show { opacity:1; }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: #ffffff;
+      border-radius: 999px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #7b8c7d;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: #111111;
+      border-radius: 50%;
+      border: none;
+    }
+    main { 
+      display:grid; 
+      grid-template-columns: 320px 1fr 260px; 
+      height: calc(100vh - 54px); 
+    }
+
+    .layersPanel{
+      border-left:1px solid var(--line);
+      background:var(--panel);
+      padding:12px;
+      overflow:auto;
+    }
+
+    .layersList{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .layerRow{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#7b8c7d;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .layerRow:hover{ border-color:#ffffff; }
+    .layerRow.active{ outline:2px solid rgba(122,162,255,.9); outline-offset:2px; }
+
+    .layerThumb{
+      width:34px;
+      height:34px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(0,0,0,.15);
+      object-fit:contain;
+      flex:0 0 auto;
+    }
+
+    .layerName{
+      font-size:12px;
+      color:var(--muted);
+      flex:1 1 auto;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .layerZ{
+      font-size:11px;
+      color:rgba(0,0,0,.55);
+      background:rgba(255,255,255,.35);
+      padding:2px 6px;
+      border-radius:999px;
+    }
+    #layers{ display:flex; flex-direction:column; gap:6px; }
+
+    .layerRow{
+      background:#7b8c7d;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:6px 8px;
+      cursor:pointer;
+      font-size:12px;
+    }
+
+    .layerRow.selected{
+      outline:2px solid rgba(122,162,255,.9);
+
+    }
+
+    .layerRow{ cursor:grab; }
+    .layerRow.dragging{ opacity:.55; }
+    .layerRow.dropTarget{ outline:2px dashed rgba(122,162,255,.9); outline-offset:2px; }
+      
+    }
+    .item.pe-none { pointer-events: none; }
+
+    .paletteSlogan{
+      font-weight: 900;          /* bien gras comme le titre */
+      font-size: 16px;           /* légèrement plus petit que le header */
+      color: #283429;            /* même teinte que ton titre */
+      letter-spacing: .02em;     /* côté arrondi / doux */
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="left">
+      <div class="title">Flash bouquet builder</div>
+      <div class="hint">Clique pour ajouter. Glisse pour déplacer. <span class="kbd">Suppr</span> efface. <span class="kbd">Ctrl+D</span> duplique.</div>
+    </div>
+    <div class="btns">
+      <button id="btnClear">Tout effacer</button>
+      <button id="btnCenter">Centrer sélection</button>
+      <button id="btnFlipH">Miroir H</button>
+      <button id="btnFlipV">Miroir V</button>
+      <button id="btnToBack">Reculer le calque</button>
+      <button id="btnToFront">Avancer le calque</button>
+      <button class="primary" id="btnExportPNG">Exporter image (PNG)</button>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <div class="section">
+        <h3>Palette</h3>
+        <div class="grid" id="palette"></div>
+        <div class="paletteSlogan">
+          Personnalise ton propre bouquet !
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Élément sélectionné</h3>
+        <div class="controls">
+          <div class="row">
+            <label>Taille</label>
+            <input id="size" type="range" min="30" max="2000" value="340" />
+          </div>
+          <div class="row">
+            <label>Rotation</label>
+            <input id="rot" type="range" min="-180" max="180" value="0" />
+          </div>
+          <div class="row">
+            <label>X</label>
+            <input id="x" type="number" />
+          </div>
+          <div class="row">
+            <label>Y</label>
+            <input id="y" type="number" />
+          </div>
+          <div class="row">
+            <label>Nom</label>
+            <input id="name" type="text" placeholder="ex: petite rose" />
+          </div>
+          <div class="tiny">
+             
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Zoom</h3>
+        <div class="row">
+          <label>Zoom</label>
+          <input id="zoom" type="range" min="40" max="140" value="100" />
+        </div>
+    </aside>
+
+    <div class="workwrap">
+      <div class="workspace" id="ws" aria-label="workspace"></div>
+      <div class="dropNote"></div>
+    </div>
+    <aside class="layersPanel">
+      <div class="section">
+        <h3>Calques</h3>
+        <div id="layersList" class="layersList"></div>
+        <div class="tiny" style="margin-top:10px;">
+          Clique un calque pour sélectionner, même si l’élément est recouvert.
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Bibliothèque d'éléments en PNG.
+    // Mets tes fichiers dans un dossier accessible, par ex: ./assets/rose.png
+    // Si tu mets tes images dans /assets/ alors src: "assets/rose.png" marche si le fichier est au bon endroit.
+    const LIB = [
+  {
+    id: "Branche",
+    label: "Branche",
+    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067820/619521521_882257137724350_4229399370122049159_n_un4f0d.png"
+  },
+  {
+    id: "Liane Torsade",
+    label: "Liane Torsade",
+    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067819/616742827_1779079892762636_82883859183779307_n_mg2klm.png"
+  },
+  {
+    id: "Grenouille",
+    label: "Grenouille",
+    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772101915/617055237_1374553773884231_136022804121882196_n_makez9.png"
+  },
+  {
+    id: "Monstera",
+    label: "Monstera",
+    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067825/619367847_1197128552086410_1477195909441759372_n_dykibo.png"
+  },
+  {
+    id: "Pillon",
+    label: "Pillon",
+    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067852/616334821_1552614829401272_758795181194598895_n_wcmyqa.png"
+  },
+];
+ 
+    const ws = document.getElementById("ws");
+    const palette = document.getElementById("palette");
+    const toast = document.getElementById("toast");
+
+    const ui = {
+      size: document.getElementById("size"),
+      rot: document.getElementById("rot"),
+      x: document.getElementById("x"),
+      y: document.getElementById("y"),
+      name: document.getElementById("name"),
+      zoom: document.getElementById("zoom")
+
+    };
+
+    let selected = null;
+    let zCounter = 1;
+    let zoom = 1;
+    
+
+    const layersEl = document.getElementById("layersList");
+    const ITEMS = [];
+    let uidCounter = 1;
+
+    function registerItem(item){
+      item.uid = "i" + (uidCounter++);
+      item.el.dataset.uid = item.uid;
+      ITEMS.push(item);
+      renderLayers();
+    }
+
+    function removeItemByUid(uid){
+      const idx = ITEMS.findIndex(it => it.uid === uid);
+      if(idx >= 0) ITEMS.splice(idx, 1);
+      renderLayers();
+    }
+
+    function getZ(el){
+      return parseInt(el.style.zIndex || "1", 10);
+    }
+
+    function renderLayers(){
+      if(!layersEl) return;
+
+      const sorted = [...ITEMS].sort((a,b) => getZ(b.el) - getZ(a.el));
+      layersEl.innerHTML = "";
+
+      for(const it of sorted){
+        const row = document.createElement("div");
+        row.className = "layerRow" + (selected && selected.uid === it.uid ? " active" : "");
+        row.dataset.uid = it.uid;
+        row.draggable = true;
+
+        row.addEventListener("dragstart", (e)=>{
+          e.dataTransfer.setData("text/plain", it.uid);
+          row.classList.add("dragging");
+        });
+
+        row.addEventListener("dragend", ()=>{
+          row.classList.remove("dragging");
+          row.classList.remove("dropTarget");
+        });
+
+        row.addEventListener("dragover", (e)=>{
+          e.preventDefault();
+          row.classList.add("dropTarget");
+        });
+
+        row.addEventListener("dragleave", ()=>{
+          row.classList.remove("dropTarget");
+        });
+
+        row.addEventListener("drop", (e)=>{
+          e.preventDefault();
+          row.classList.remove("dropTarget");
+          const draggedUid = e.dataTransfer.getData("text/plain");
+          if(!draggedUid || draggedUid === it.uid) return;
+          reorderByDrop(draggedUid, it.uid);
+        });
+
+        const thumb = document.createElement("img");
+        thumb.className = "layerThumb";
+        thumb.src = libById(it.libId)?.src || "";
+        thumb.alt = it.name || "";
+
+        const name = document.createElement("div");
+        name.className = "layerName";
+        name.textContent = it.name || libById(it.libId)?.label || it.libId;
+
+        const z = document.createElement("div");
+        z.className = "layerZ";
+        z.textContent = String(getZ(it.el));
+
+        row.appendChild(thumb);
+        row.appendChild(name);
+        row.appendChild(z);
+
+        row.addEventListener("click", ()=>{
+          select(it);
+          it.el.scrollIntoView({ block:"nearest", inline:"nearest" });
+        });
+
+        layersEl.appendChild(row);
+      }
+    }
+
+    function reorderByDrop(draggedUid, targetUid){
+      const ordered = [...ITEMS].sort((a,b) => getZ(b.el) - getZ(a.el)); // top -> bottom
+      const from = ordered.findIndex(it=>it.uid===draggedUid);
+      const to   = ordered.findIndex(it=>it.uid===targetUid);
+      if(from<0 || to<0) return;
+
+      const [moved] = ordered.splice(from, 1);
+      ordered.splice(to, 0, moved);
+
+      const bottomToTop = [...ordered].reverse();
+      let z = 1;
+      for(const it of bottomToTop){
+        it.el.style.zIndex = String(z++);
+      }
+      zCounter = z;
+
+      renderLayers();
+    }
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 1200);
+    }
+
+    function renderPalette(){
+      palette.innerHTML = "";
+      for(const item of LIB){
+        const card = document.createElement("div");
+        card.className = "card";
+        card.draggable = true;
+        card.dataset.libId = item.id;
+
+        const img = document.createElement("img");
+        img.crossOrigin = "anonymous";
+        img.src = item.src;
+        img.alt = item.label;
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = item.label;
+
+        card.appendChild(img);
+        card.appendChild(label);
+
+        card.addEventListener("click", ()=> addItem(item.id, 380, 380));
+        card.addEventListener("dragstart", (e)=>{
+          e.dataTransfer.setData("text/plain", item.id);
+        });
+
+        palette.appendChild(card);
+      }
+    }
+
+    function deselect(){
+      if(selected){ selected.el.classList.remove("selected"); }
+      updatePointerLock();
+      selected = null;
+      updatePointerLock();
+      syncInspector();
+      renderLayers();
+    }
+
+    function updatePointerLock(){
+      const els = ws.querySelectorAll(".item");
+      els.forEach(el => el.classList.remove("pe-none"));
+
+      if(!selected) return;
+
+      // On coupe les clics sur tous les autres items
+      els.forEach(el=>{
+        if(el !== selected.el) el.classList.add("pe-none");
+      });
+    }
+
+    function select(item){
+      if(selected && selected.el === item.el) return;
+      deselect();
+      selected = item;
+      selected.el.classList.add("selected");
+      syncInspector();
+      renderLayers();
+    }
+
+    function syncInspector(){
+      const has = !!selected;
+      ui.size.disabled = !has;
+      ui.rot.disabled = !has;
+      ui.x.disabled = !has;
+      ui.y.disabled = !has;
+      ui.name.disabled = !has;
+
+      if(!has){
+        ui.size.value = 140;
+        ui.rot.value = 0;
+        ui.x.value = "";
+        ui.y.value = "";
+        ui.name.value = "";
+        return;
+      }
+      ui.size.value = Math.round(selected.w);
+      ui.rot.value = Math.round(selected.rot);
+      ui.x.value = Math.round(selected.x);
+      ui.y.value = Math.round(selected.y);
+      ui.name.value = selected.name || "";
+    }
+
+    function libById(id){ return LIB.find(x=>x.id===id); }
+
+    function addItem(libId, x, y){
+      const src = libById(libId);
+      if(!src) return;
+
+      const el = document.createElement("div");
+      el.className = "item";
+      el.style.left = x + "px";
+      el.style.top  = y + "px";
+      el.style.width = "340px";
+      el.style.height = "340px";
+      el.style.zIndex = String(++zCounter);
+      el.dataset.libId = libId;
+
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = src.label;
+
+      const img = document.createElement("img");
+
+      img.src = src.src;
+      img.alt = src.label;
+
+      el.appendChild(badge);
+      el.appendChild(img);
+
+      const item = {
+        el, libId,
+        x, y, w:340, h:340,
+        rot:0,
+        flipX:false,
+        flipY:false,
+        name: src.label
+      };
+
+      function apply(){
+        el.style.left = item.x + "px";
+        el.style.top  = item.y + "px";
+        el.style.width = item.w + "px";
+        el.style.height = item.h + "px";
+        const sx = item.flipX ? -1 : 1;
+        const sy = item.flipY ? -1 : 1;
+        el.style.transform = `scale(${sx}, ${sy}) rotate(${item.rot}deg)`;
+      }
+      item.apply = apply;
+      apply();
+
+      let drag = null;
+
+      el.addEventListener("pointerdown", (e)=>{
+        e.preventDefault();
+        select(item);
+        updatePointerLock();
+        renderLayers();
+        el.setPointerCapture(e.pointerId);
+
+        const rect = ws.getBoundingClientRect();
+        const startX = (e.clientX - rect.left) / zoom;
+        const startY = (e.clientY - rect.top) / zoom;
+
+        drag = {
+          mode: e.shiftKey ? "resize" : "move",
+          startX, startY,
+          baseX: item.x, baseY: item.y,
+          baseW: item.w, baseH: item.h
+        };
+      });
+
+      el.addEventListener("pointermove", (e)=>{
+        if(!drag) return;
+        const rect = ws.getBoundingClientRect();
+        const cx = (e.clientX - rect.left) / zoom;
+        const cy = (e.clientY - rect.top) / zoom;
+        const dx = cx - drag.startX;
+        const dy = cy - drag.startY;
+
+        if(drag.mode === "move"){
+          item.x = clamp(drag.baseX + dx, -200, ws.clientWidth - 20);
+          item.y = clamp(drag.baseY + dy, -200, ws.clientHeight - 20);
+        } else {
+          const d = Math.max(dx, dy);
+          const nw = clamp(drag.baseW + d, 30, 2000);
+          item.w = nw;
+          item.h = nw;
+        }
+        item.apply();
+        syncInspector();
+      });
+
+      el.addEventListener("pointerup", ()=>{
+        drag = null;
+      });
+
+      el.addEventListener("dblclick", ()=>{
+        item.rot = 0;
+        item.apply();
+        syncInspector();
+      });
+      registerItem(item);
+      ws.appendChild(el);
+      select(item);
+      return item;
+    }
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+    ws.addEventListener("pointerdown", (e)=>{
+      if(e.target === ws && !selected) deselect();
+    });
+
+    ws.addEventListener("dragover", (e)=>{ e.preventDefault(); });
+    ws.addEventListener("drop", (e)=>{
+      e.preventDefault();
+      const libId = e.dataTransfer.getData("text/plain");
+      const rect = ws.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / zoom - 70;
+      const y = (e.clientY - rect.top) / zoom - 70;
+      addItem(libId, clamp(x, 0, ws.clientWidth-140), clamp(y, 0, ws.clientHeight-140));
+    });
+
+    function bindInspector(){
+      ui.size.addEventListener("input", ()=>{
+        if(!selected) return;
+        const v = Number(ui.size.value);
+        selected.w = v; selected.h = v;
+        selected.apply(); syncInspector();
+      });
+      ui.rot.addEventListener("input", ()=>{
+        if(!selected) return;
+        selected.rot = Number(ui.rot.value);
+        selected.apply(); syncInspector();
+      });
+      ui.x.addEventListener("input", ()=>{
+        if(!selected) return;
+        selected.x = Number(ui.x.value) || 0;
+        selected.apply();
+      });
+      ui.y.addEventListener("input", ()=>{
+        if(!selected) return;
+        selected.y = Number(ui.y.value) || 0;
+        selected.apply();
+      });
+      ui.name.addEventListener("input", ()=>{
+        if(!selected) return;
+        selected.name = ui.name.value;
+        const badge = selected.el.querySelector(".badge");
+        if(badge) badge.textContent = ui.name.value || libById(selected.libId)?.label || "Item";
+      });
+
+      ui.zoom.addEventListener("input", ()=>{
+        zoom = Number(ui.zoom.value) / 100;
+
+        ws.style.transformOrigin = "center center";
+        ws.style.transform = `scale(${zoom})`;
+
+        const baseH = ws.clientHeight; 
+        const h = Math.max(baseH, baseH * zoom) + 40;
+        ws.parentElement.style.height = h + "px";
+      });
+
+      window.addEventListener("keydown", (e)=>{
+        // supprimer uniquement sur Delete / Backspace
+        if((e.key === "Delete" || e.key === "Backspace") && selected){
+          e.preventDefault();
+          const uid = selected.uid;
+          selected.el.remove();
+          deselect();
+          removeItemByUid(uid);
+          showToast("Élément supprimé");
+          return;
+        }
+
+        if(e.ctrlKey && (e.key.toLowerCase()==="d")){
+          e.preventDefault();
+          if(selected){
+            const clone = addItem(selected.libId, selected.x + 18, selected.y + 18);
+            clone.w = selected.w; clone.h = selected.h;
+            clone.rot = selected.rot;
+            clone.flipX = selected.flipX;
+            clone.flipY = selected.flipY;
+            clone.name = selected.name;
+            clone.apply();
+            const badge = clone.el.querySelector(".badge");
+            if(badge) badge.textContent = clone.name || libById(clone.libId)?.label || "Item";
+            showToast("Dupliqué");
+          }
+          return;
+        }
+
+        if(!selected) return;
+
+        if(e.ctrlKey && (e.key === "]" || e.key === "}")){
+          e.preventDefault();
+          selected.el.style.zIndex = String(++zCounter);
+          renderLayers();
+        }
+
+        if(e.ctrlKey && (e.key === "[" || e.key === "{")){
+          e.preventDefault();
+          selected.el.style.zIndex = "1";
+          renderLayers();
+        }
+      });
+
+      ws.addEventListener("wheel", (e)=>{
+        if(!e.ctrlKey) return;
+        e.preventDefault();
+        const current = Number(ui.zoom.value);
+        const next = clamp(current + (e.deltaY < 0 ? 5 : -5), 40, 140);
+        ui.zoom.value = String(next);
+        ui.zoom.dispatchEvent(new Event("input"));
+      }, { passive:false });
+    }
+
+    function getAllItems(){
+      const els = Array.from(ws.querySelectorAll(".item"));
+      return els.map(el=>{
+        const libId = el.dataset.libId;
+        const x = parseFloat(el.style.left) || 0;
+        const y = parseFloat(el.style.top) || 0;
+        const w = parseFloat(el.style.width) || 140;
+        const h = parseFloat(el.style.height) || 140;
+        const rot = extractRot(el.style.transform);
+        const z = parseInt(el.style.zIndex || "1", 10);
+        const badge = el.querySelector(".badge");
+        const name = badge ? badge.textContent : (libById(libId)?.label || "");
+        return { libId, x, y, w, h, rot, z, name };
+      }).sort((a,b)=>a.z-b.z);
+    }
+
+    function extractRot(t){
+      const m = /rotate\(([-0-9.]+)deg\)/.exec(t || "");
+      return m ? parseFloat(m[1]) : 0;
+    }
+    async function exportPNG(){
+      const items = getAllItems();
+      if(!items.length){ showToast("Rien à exporter"); return; }
+
+      const PAD = 80; // marge autour du dessin exporté
+
+      function boundsOfItem(it){
+        const cx = it.x + it.w/2;
+        const cy = it.y + it.h/2;
+        const rad = ((it.rot || 0) * Math.PI) / 180;
+
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        // coins du rectangle centré, avant rotation
+        const hw = it.w/2;
+        const hh = it.h/2;
+        const corners = [
+          {x:-hw, y:-hh},
+          {x: hw, y:-hh},
+          {x: hw, y: hh},
+          {x:-hw, y: hh},
+        ];
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        for(const p of corners){
+          // rotation autour du centre
+          const rx = p.x * cos - p.y * sin;
+          const ry = p.x * sin + p.y * cos;
+          const ax = cx + rx;
+          const ay = cy + ry;
+          if(ax < minX) minX = ax;
+          if(ay < minY) minY = ay;
+          if(ax > maxX) maxX = ax;
+          if(ay > maxY) maxY = ay;
+        }
+        return { minX, minY, maxX, maxY };
+      }
+
+      // 1) enveloppe globale
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for(const it of items){
+        const b = boundsOfItem(it);
+        if(b.minX < minX) minX = b.minX;
+        if(b.minY < minY) minY = b.minY;
+        if(b.maxX > maxX) maxX = b.maxX;
+        if(b.maxY > maxY) maxY = b.maxY;
+      }
+
+      minX -= PAD; minY -= PAD; maxX += PAD; maxY += PAD;
+
+      const W = Math.max(1, Math.ceil(maxX - minX));
+      const H = Math.max(1, Math.ceil(maxY - minY));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d");
+
+      // fond transparent, ou blanc si tu veux
+      // ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,W,H);
+
+      if(!exportPNG._cache) exportPNG._cache = new Map();
+      const cache = exportPNG._cache;
+
+      function loadImage(url){
+        if(cache.has(url)) return cache.get(url);
+        const p = new Promise((resolve, reject)=>{
+          const im = new Image();
+          im.crossOrigin = "anonymous";
+          im.onload = ()=>resolve(im);
+          im.onerror = ()=>reject(new Error("Image non chargeable: " + url));
+          im.src = url;
+        });
+        cache.set(url, p);
+        return p;
+      }
+
+      // 2) dessiner en décalant tout de (-minX, -minY)
+      for(const it of items){
+        const lib = libById(it.libId);
+        if(!lib) continue;
+
+        let im;
+        try { im = await loadImage(lib.src); }
+        catch(e){ console.warn(e); continue; }
+
+        ctx.save();
+
+        const cx = (it.x + it.w/2) - minX;
+        const cy = (it.y + it.h/2) - minY;
+
+        const flipX = !!it.flipX;
+        const flipY = !!it.flipY;
+        const sx = flipX ? -1 : 1;
+        const sy = flipY ? -1 : 1;
+
+        ctx.translate(cx, cy);
+        ctx.scale(sx, sy);
+        ctx.rotate(((it.rot || 0) * Math.PI) / 180);
+
+        const iw = im.naturalWidth || im.width;
+        const ih = im.naturalHeight || im.height;
+        const scale = Math.min(it.w / iw, it.h / ih);
+        const dw = iw * scale;
+        const dh = ih * scale;
+
+        ctx.drawImage(im, -dw/2, -dh/2, dw, dh);
+
+        ctx.restore();
+      }
+
+      canvas.toBlob((blob)=>{
+        if(!blob) { showToast("Export PNG impossible"); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "flash-compo.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url), 1000);
+        showToast("PNG exporté");
+      }, "image/png");
+    }
+
+    function exportJSON(){
+      const payload = {
+        v: 1,
+        canvas: { w: ws.clientWidth, h: ws.clientHeight },
+        items: getAllItems()
+      };
+      downloadText(JSON.stringify(payload, null, 2), "flash-compo.json", "application/json");
+      showToast("JSON exporté");
+    }
+
+    function importJSON(){
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json";
+      input.onchange = async ()=>{
+        const file = input.files[0];
+        if(!file) return;
+        const text = await file.text();
+        let data;
+        try { data = JSON.parse(text); } catch { showToast("JSON invalide"); return; }
+
+        ws.querySelectorAll(".item").forEach(el=>el.remove());
+        deselect();
+
+        if(data?.items?.length){
+          for(const it of data.items){
+            const obj = addItem(it.libId, it.x, it.y);
+            obj.w = it.w; obj.h = it.h;
+            obj.rot = it.rot;
+            obj.apply();
+            obj.el.style.zIndex = String(it.z || (++zCounter));
+            obj.name = it.name || libById(it.libId)?.label || "";
+            const badge = obj.el.querySelector(".badge");
+            if(badge) badge.textContent = obj.name;
+          }
+          showToast("JSON importé");
+        }
+      };
+      input.click();
+    }
+
+    function downloadText(text, filename, mime){
+      const blob = new Blob([text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 800);
+    }
+
+
+    document.getElementById("btnClear").addEventListener("click", ()=>{
+      ws.querySelectorAll(".item").forEach(el=>el.remove());
+      deselect();
+      showToast("Zone vidée");
+    });
+
+    document.getElementById("btnCenter").addEventListener("click", ()=>{
+      if(!selected) return;
+      selected.x = (ws.clientWidth - selected.w)/2;
+      selected.y = (ws.clientHeight - selected.h)/2;
+      selected.apply();
+      syncInspector();
+    });
+
+    document.getElementById("btnToFront").addEventListener("click", ()=>{
+      if(!selected) return;
+      selected.el.style.zIndex = String(++zCounter);
+      renderLayers();
+    });
+
+    document.getElementById("btnToBack").addEventListener("click", ()=>{
+      if(!selected) return;
+      selected.el.style.zIndex = "1";
+      renderLayers();
+    });
+    document.getElementById("btnFlipH").addEventListener("click", ()=>{
+      if(!selected) return;
+      selected.flipX = !selected.flipX;
+      selected.apply();
+    });
+
+    document.getElementById("btnFlipV").addEventListener("click", ()=>{
+      if(!selected) return;
+      selected.flipY = !selected.flipY;
+      selected.apply();
+    });
+
+    document.getElementById("btnExportPNG").addEventListener("click", exportPNG);
+
+    renderPalette();
+    bindInspector();
+    syncInspector();
+  </script>
+</body>
+</html>
