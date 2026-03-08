@@ -48,11 +48,16 @@
     }
     .tiny { font-size:12px; color:var(--muted); line-height:1.35; }
     .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:11px; border:1px solid var(--line); padding:2px 6px; border-radius:8px; background:#0f1118; color:var(--ink); }
-    .workwrap { padding:12px; overflow:auto; }
+    .workwrap {
+      padding:12px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+    }
     .workspace {
       position:relative;
       width: 900px; height: 900px;
       margin:0 auto;
+      touch-action: pan-x pan-y;
       background: repeating-conic-gradient(from 90deg, rgba(0,0,0,.05) 0 25%, rgba(0,0,0,.02) 0 50%) 0 / 40px 40px;
       border:1px solid var(--line);
       border-radius:16px;
@@ -738,6 +743,7 @@
       apply();
 
       let drag = null;
+      let touchGesture = null;
 
       el.addEventListener("pointerdown", (e)=>{
         e.preventDefault();
@@ -788,6 +794,154 @@
         item.apply();
         syncInspector();
       });
+
+      el.addEventListener("touchstart", (e)=>{
+        select(item);
+
+        const rect = ws.getBoundingClientRect();
+
+        if(e.touches.length === 1){
+          e.preventDefault();
+
+          const p = getTouchPoint(e.touches[0], rect);
+
+          touchGesture = {
+            mode: "move",
+            startX: p.x,
+            startY: p.y,
+            baseX: item.x,
+            baseY: item.y
+          };
+        }
+
+        if(e.touches.length === 2){
+          e.preventDefault();
+
+          const p1 = getTouchPoint(e.touches[0], rect);
+          const p2 = getTouchPoint(e.touches[1], rect);
+
+          const centerX = (p1.x + p2.x) / 2;
+          const centerY = (p1.y + p2.y) / 2;
+
+          touchGesture = {
+            mode: "transform",
+            startDistance: getDistance(p1, p2),
+            startAngle: getAngle(p1, p2),
+            baseW: item.w,
+            baseH: item.h,
+            baseRot: item.rot,
+            baseX: item.x,
+            baseY: item.y,
+            baseCenterX: item.x + item.w / 2,
+            baseCenterY: item.y + item.h / 2,
+            startCenterX: centerX,
+            startCenterY: centerY
+          };
+        }
+      }, { passive:false });
+
+      el.addEventListener("touchmove", (e)=>{
+        if(!touchGesture) return;
+
+        const rect = ws.getBoundingClientRect();
+
+        if(touchGesture.mode === "move" && e.touches.length === 1){
+          e.preventDefault();
+
+          const p = getTouchPoint(e.touches[0], rect);
+          const dx = p.x - touchGesture.startX;
+          const dy = p.y - touchGesture.startY;
+
+          item.x = clamp(touchGesture.baseX + dx, -200, ws.clientWidth - 20);
+          item.y = clamp(touchGesture.baseY + dy, -200, ws.clientHeight - 20);
+
+          item.apply();
+          syncInspector();
+        }
+
+        if(touchGesture.mode === "transform" && e.touches.length === 2){
+          e.preventDefault();
+
+          const p1 = getTouchPoint(e.touches[0], rect);
+          const p2 = getTouchPoint(e.touches[1], rect);
+
+          const currentDistance = getDistance(p1, p2);
+          const currentAngle = getAngle(p1, p2);
+
+          const currentCenterX = (p1.x + p2.x) / 2;
+          const currentCenterY = (p1.y + p2.y) / 2;
+
+          const scaleRatio = currentDistance / touchGesture.startDistance;
+          const newSize = clamp(touchGesture.baseW * scaleRatio, 30, 2000);
+
+          const angleDelta = currentAngle - touchGesture.startAngle;
+
+          const moveCenterX = currentCenterX - touchGesture.startCenterX;
+          const moveCenterY = currentCenterY - touchGesture.startCenterY;
+
+          item.w = newSize;
+          item.h = newSize;
+          item.rot = touchGesture.baseRot + angleDelta;
+
+          const newCenterX = touchGesture.baseCenterX + moveCenterX;
+          const newCenterY = touchGesture.baseCenterY + moveCenterY;
+
+          item.x = newCenterX - item.w / 2;
+          item.y = newCenterY - item.h / 2;
+
+          item.apply();
+          syncInspector();
+        }
+      }, { passive:false });
+
+      el.addEventListener("touchend", (e)=>{
+        if(e.touches.length === 0){
+          touchGesture = null;
+          return;
+        }
+
+        const rect = ws.getBoundingClientRect();
+
+        if(e.touches.length === 1){
+          const p = getTouchPoint(e.touches[0], rect);
+
+          touchGesture = {
+            mode: "move",
+            startX: p.x,
+            startY: p.y,
+            baseX: item.x,
+            baseY: item.y
+          };
+        }
+
+        if(e.touches.length === 2){
+          const p1 = getTouchPoint(e.touches[0], rect);
+          const p2 = getTouchPoint(e.touches[1], rect);
+
+          const centerX = (p1.x + p2.x) / 2;
+          const centerY = (p1.y + p2.y) / 2;
+
+          touchGesture = {
+            mode: "transform",
+            startDistance: getDistance(p1, p2),
+            startAngle: getAngle(p1, p2),
+            baseW: item.w,
+            baseH: item.h,
+            baseRot: item.rot,
+            baseX: item.x,
+            baseY: item.y,
+            baseCenterX: item.x + item.w / 2,
+            baseCenterY: item.y + item.h / 2,
+            startCenterX: centerX,
+            startCenterY: centerY
+          };
+        }
+      }, { passive:false });
+
+      el.addEventListener("touchcancel", ()=>{
+        touchGesture = null;
+      });
+      
       registerItem(item);
       ws.appendChild(el);
       select(item);
@@ -795,6 +949,23 @@
     }
 
     function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+    function getTouchPoint(touch, rect){
+      return {
+        x: (touch.clientX - rect.left) / zoom,
+        y: (touch.clientY - rect.top) / zoom
+      };
+    }
+
+    function getDistance(a, b){
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      return Math.hypot(dx, dy);
+    }
+
+    function getAngle(a, b){
+      return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+    }
 
     function resizeWorkspaceForMobile(){
       const isMobile = window.innerWidth <= 900;
