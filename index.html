@@ -8,7 +8,15 @@
     :root { --bg:#36373e; --panel:#d8c1c7; --ink:#e7ffe9; --muted:#2e262e; --line:#b2c39c; --accent:#eac9eb; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--ink); }
-    header { background:#7b8c7d; padding:12px 16px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:center; justify-content:space-between; }
+    header {
+      background:#7b8c7d;
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-start;
+    }
     header .left { display:flex; gap:12px; align-items:center; }
     header .title { font-weight:900; color:#d8c1c7;}
     header .hint { color:#000000; font-size:13px;}
@@ -63,12 +71,13 @@
       line-height:1;
       white-space:nowrap;
     }
-    
+
     .exportBtn{
       background:#dff1e3;
       color:#1f2a20;
       border-color: rgba(122,162,255,.6);
-      box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset;
+      box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset, 0 4px 12px rgba(0,0,0,.10);
+      font-weight:700;
     }
 
     .exportBtn img{
@@ -112,7 +121,8 @@
     }
     .workspace {
       position:relative;
-      width: 900px; height: 900px;
+      width: 900px;
+      height: 900px;
       margin:0 auto;
       touch-action: pan-x pan-y;
       background: repeating-conic-gradient(from 90deg, rgba(0,0,0,.05) 0 25%, rgba(0,0,0,.02) 0 50%) 0 / 40px 40px;
@@ -337,6 +347,50 @@
     }
 
     /* ===== Responsive mobile / tablette ===== */
+    @media (min-width: 901px) {
+      .zoomSection{
+        display:none;
+      }
+
+      header {
+        justify-content:flex-start;
+      }
+
+      header .btns {
+        position: fixed;
+        top: 78px;
+        right: 16px;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .toolBtn{
+        display:flex;
+        align-items:center;
+        justify-content:flex-start;
+        gap:8px;
+        min-height:42px;
+        min-width:160px;
+        padding:10px 14px;
+        text-align:left;
+        box-shadow: 0 3px 10px rgba(0,0,0,.10);
+      }
+
+      .workwrap {
+        padding:12px 210px 12px 12px;
+      }
+
+      .workspace {
+        width: min(1200px, calc(100vw - 420px));
+        height: min(1200px, calc(100vh - 110px));
+        min-width: 700px;
+        min-height: 700px;
+      }
+    }
+
     @media (max-width: 900px) {
       body {
         overflow-x: hidden;
@@ -376,6 +430,7 @@
       }
 
       header .btns {
+        position: static;
         width: 100%;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -383,7 +438,7 @@
       }
 
       header .btns button {
-        width: auto;
+        width: 100%;
         min-height: 38px;
         font-size: 11px;
         padding: 0;
@@ -1141,9 +1196,24 @@
         const size = Math.min(window.innerWidth - 20, 600);
         ws.style.width = size + "px";
         ws.style.height = size + "px";
+
+        zoom = 1;
+        ui.zoom.value = "100";
+        ws.style.transformOrigin = "center center";
+        ws.style.transform = "scale(1)";
+        ws.parentElement.style.height = "";
       } else {
-        ws.style.width = "900px";
-        ws.style.height = "900px";
+        ws.style.width = "";
+        ws.style.height = "";
+
+        zoom = 1.5;
+        ui.zoom.value = "150";
+        ws.style.transformOrigin = "center center";
+        ws.style.transform = "scale(1.5)";
+
+        const baseH = ws.clientHeight;
+        const h = Math.max(baseH, baseH * zoom) + 40;
+        ws.parentElement.style.height = h + "px";
       }
     }
 
@@ -1435,12 +1505,17 @@
 
 
    document.getElementById("btnClear").addEventListener("click", ()=>{
-     ws.querySelectorAll(".item").forEach(el=>el.remove());
+     if(!selected){
+       showToast("Aucun élément sélectionné");
+       return;
+     }
 
-     ITEMS.length = 0;   // vide le tableau des calques
-     selected = null;    // enlève la sélection
+     const uid = selected.uid;
+     selected.el.remove();
+     deselect();
+     removeItemByUid(uid);
 
-     showToast("Zone vidée");
+     showToast("Élément supprimé");
    });
 
     document.getElementById("btnCenter").addEventListener("click", ()=>{
