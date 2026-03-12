@@ -74,6 +74,77 @@
     }
     .item:active { cursor:grabbing; }
     .item.selected { outline:2px solid rgba(122,162,255,.9); outline-offset:4px; border-radius:10px; }
+    .rotateHandle{
+      position:absolute;
+      width:26px;
+      height:26px;
+      right:-13px;
+      top:-13px;
+      border-radius:50%;
+      background:#7b8c7d;
+      border:2px solid #ffffff;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      display:none;
+      z-index:2;
+      cursor:grab;
+    }
+    .resizeHandle{
+      position:absolute;
+      width:26px;
+      height:26px;
+      right:-13px;
+      bottom:-13px;
+      border-radius:50%;
+      background:#7b8c7d;
+      border:2px solid #ffffff;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      display:none;
+      z-index:2;
+      cursor:nwse-resize;
+    }
+
+    .item.selected .resizeHandle{
+      display:block;
+    }
+
+    .resizeHandle::before{
+      content:"↘";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:15px;
+      font-weight:700;
+      color:#111111;
+      line-height:1;
+    }
+
+    .resizeHandle:active{
+      cursor:nwse-resize;
+    }
+
+    .item.selected .rotateHandle{
+      display:block;
+    }
+
+    .rotateHandle::before{
+      content:"↻";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:15px;
+      font-weight:700;
+      color:#111111;
+      line-height:1;
+    }
+
+    .rotateHandle:active{
+      cursor:grabbing;
+    }
+
 
     .item img { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; }
 
@@ -121,7 +192,7 @@
     }
     main { 
       display:grid; 
-      grid-template-columns: 320px 1fr 260px; 
+      grid-template-columns: 320px 1fr; 
       height: calc(100vh - 54px); 
     }
 
@@ -216,38 +287,47 @@
         overflow-x: hidden;
       }
 
+      .rotateHandle,
+        .resizeHandle {
+          display: none !important;
+        }
+
       header {
         align-items: flex-start;
         flex-direction: column;
-        gap: 10px;
-        padding: 10px;
+        gap: 8px;
+        padding: 8px 10px;
       }
 
       header .left {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 6px;
+        gap: 4px;
         width: 100%;
       }
 
+      header .title {
+        font-size: 14px;
+      }
+
       header .hint {
-        font-size: 12px;
-        line-height: 1.3;
+        font-size: 11px;
+        line-height: 1.2;
       }
 
       header .btns {
         width: 100%;
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
       }
 
       header .btns button {
         width: 100%;
-        min-height: 42px;
-        font-size: 12px;
-        padding: 10px 8px;
+        min-height: 36px;
+        font-size: 11px;
+        padding: 6px;
       }
 
       main {
@@ -256,38 +336,80 @@
         height: auto;
       }
 
-      aside,
-      .layersPanel {
-        border: none;
-        border-bottom: 1px solid var(--line);
-        padding: 10px;
+      .workwrap {
+        order: 1;
+        padding: 8px;
+        overflow: visible;
       }
 
-      .workwrap {
-        padding: 10px;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
+      aside {
+        order: 2;
+        border: none;
+        border-top: 1px solid var(--line);
+        padding: 8px 10px 90px 10px;
+        background: var(--panel);
       }
 
       .workspace {
-        width: 600px;
-        height: 600px;
+        width: 100%;
+        max-width: 600px;
+        height: 72vw;
+        max-height: 520px;
+        min-height: 320px;
+        margin: 0 auto;
+      }
+
+      aside details.section:first-child {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 40;
         margin: 0;
+        padding: 8px 10px 10px 10px;
+        background: var(--panel);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -6px 18px rgba(0,0,0,.16);
       }
 
-      .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      aside details.section:first-child summary {
+        margin-bottom: 8px;
+      }
+
+      aside details.section:first-child .paletteSlogan {
+        display: none;
+      }
+
+      #palette {
+        display: flex;
         gap: 8px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 2px;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
       }
 
-      .card {
-        min-height: 110px;
-        padding: 8px;
+      #palette .card {
+        flex: 0 0 92px;
+        min-height: 92px;
+        padding: 6px;
+        border-radius: 12px;
+        scroll-snap-align: start;
       }
 
-      .card img {
-        width: 72px;
-        height: 72px;
+      #palette .card img {
+        width: 46px;
+        height: 46px;
+      }
+
+      #palette .card .label {
+        font-size: 10px;
+        line-height: 1.1;
+      }
+
+      aside details.section:last-child {
+        margin-bottom: 0;
       }
 
       .row {
@@ -300,33 +422,8 @@
         font-size: 12px;
       }
 
-      input[type="number"],
-      input[type="text"] {
-        min-height: 42px;
-        font-size: 16px; /* évite le zoom iPhone */
-      }
-
       input[type="range"] {
         height: 10px;
-      }
-
-      .layersList {
-        gap: 6px;
-      }
-
-      .layerRow {
-        min-height: 48px;
-        padding: 8px;
-      }
-
-      .layerThumb {
-        width: 40px;
-        height: 40px;
-      }
-
-      .paletteSlogan {
-        font-size: 14px;
-        margin-top: 8px;
       }
 
       .item.selected {
@@ -337,25 +434,26 @@
 
     @media (max-width: 600px) {
       header .btns {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .workspace {
-        width: 480px;
-        height: 480px;
+        height: 78vw;
+        min-height: 280px;
       }
 
-      .grid {
-        grid-template-columns: 1fr 1fr;
+      #palette .card {
+        flex: 0 0 84px;
+        min-height: 84px;
       }
 
-      .card {
-        min-height: 96px;
+      #palette .card img {
+        width: 40px;
+        height: 40px;
       }
 
-      .card img {
-        width: 64px;
-        height: 64px;
+      #palette .card .label {
+        font-size: 9px;
       }
     }
 
@@ -380,6 +478,12 @@
   </header>
 
   <main>
+
+    <div class="workwrap">
+      <div class="workspace" id="ws" aria-label="workspace"></div>
+      <div class="dropNote"></div>
+    </div>
+
     <aside>
       <details class="section" open>
         <summary><h3>Palette</h3></summary>
@@ -390,50 +494,10 @@
       </details>
 
       <details class="section" open>
-        <summary><h3>Élément sélectionné</h3></summary>
-        <div class="controls">
-          <div class="row">
-            <label>Taille</label>
-            <input id="size" type="range" min="30" max="2000" value="340" />
-          </div>
-          <div class="row">
-            <label>Rotation</label>
-            <input id="rot" type="range" min="-180" max="180" value="0" />
-          </div>
-          <div class="row">
-            <label>X</label>
-            <input id="x" type="number" />
-          </div>
-          <div class="row">
-            <label>Y</label>
-            <input id="y" type="number" />
-          </div>
-          <div class="row">
-            <label>Nom</label>
-            <input id="name" type="text" placeholder="ex: petite rose" />
-          </div>
-        </div>
-      </details>
-
-      <details class="section" open>
         <summary><h3>Zoom</h3></summary>
         <div class="row">
           <label>Zoom</label>
           <input id="zoom" type="range" min="40" max="140" value="100" />
-        </div>
-      </details>
-    </aside>
-
-    <div class="workwrap">
-      <div class="workspace" id="ws" aria-label="workspace"></div>
-      <div class="dropNote"></div>
-    </div>
-    <aside class="layersPanel">
-      <details class="section" open>
-        <summary><h3>Calques</h3></summary>
-        <div id="layersList" class="layersList"></div>
-        <div class="tiny" style="margin-top:10px;">
-          Clique un calque pour sélectionner, même si l’élément est recouvert.
         </div>
       </details>
     </aside>
@@ -478,13 +542,7 @@
     const toast = document.getElementById("toast");
 
     const ui = {
-      size: document.getElementById("size"),
-      rot: document.getElementById("rot"),
-      x: document.getElementById("x"),
-      y: document.getElementById("y"),
-      name: document.getElementById("name"),
       zoom: document.getElementById("zoom")
-
     };
 
     let selected = null;
@@ -492,7 +550,6 @@
     let zoom = 1;
     
 
-    const layersEl = document.getElementById("layersList");
     const ITEMS = [];
     let uidCounter = 1;
 
@@ -500,101 +557,11 @@
       item.uid = "i" + (uidCounter++);
       item.el.dataset.uid = item.uid;
       ITEMS.push(item);
-      renderLayers();
     }
 
     function removeItemByUid(uid){
       const idx = ITEMS.findIndex(it => it.uid === uid);
       if(idx >= 0) ITEMS.splice(idx, 1);
-      renderLayers();
-    }
-
-    function getZ(el){
-      return parseInt(el.style.zIndex || "1", 10);
-    }
-
-    function renderLayers(){
-      if(!layersEl) return;
-
-      const sorted = [...ITEMS].sort((a,b) => getZ(b.el) - getZ(a.el));
-      layersEl.innerHTML = "";
-
-      for(const it of sorted){
-        const row = document.createElement("div");
-        row.className = "layerRow" + (selected && selected.uid === it.uid ? " active" : "");
-        row.dataset.uid = it.uid;
-        row.draggable = true;
-
-        row.addEventListener("dragstart", (e)=>{
-          e.dataTransfer.setData("text/plain", it.uid);
-          row.classList.add("dragging");
-        });
-
-        row.addEventListener("dragend", ()=>{
-          row.classList.remove("dragging");
-          row.classList.remove("dropTarget");
-        });
-
-        row.addEventListener("dragover", (e)=>{
-          e.preventDefault();
-          row.classList.add("dropTarget");
-        });
-
-        row.addEventListener("dragleave", ()=>{
-          row.classList.remove("dropTarget");
-        });
-
-        row.addEventListener("drop", (e)=>{
-          e.preventDefault();
-          row.classList.remove("dropTarget");
-          const draggedUid = e.dataTransfer.getData("text/plain");
-          if(!draggedUid || draggedUid === it.uid) return;
-          reorderByDrop(draggedUid, it.uid);
-        });
-
-        const thumb = document.createElement("img");
-        thumb.className = "layerThumb";
-        thumb.src = libById(it.libId)?.src || "";
-        thumb.alt = it.name || "";
-
-        const name = document.createElement("div");
-        name.className = "layerName";
-        name.textContent = it.name || libById(it.libId)?.label || it.libId;
-
-        const z = document.createElement("div");
-        z.className = "layerZ";
-        z.textContent = String(getZ(it.el));
-
-        row.appendChild(thumb);
-        row.appendChild(name);
-        row.appendChild(z);
-
-        row.addEventListener("click", ()=>{
-          select(it);
-          it.el.scrollIntoView({ block:"nearest", inline:"nearest" });
-        });
-
-        layersEl.appendChild(row);
-      }
-    }
-
-    function reorderByDrop(draggedUid, targetUid){
-      const ordered = [...ITEMS].sort((a,b) => getZ(b.el) - getZ(a.el)); // top -> bottom
-      const from = ordered.findIndex(it=>it.uid===draggedUid);
-      const to   = ordered.findIndex(it=>it.uid===targetUid);
-      if(from<0 || to<0) return;
-
-      const [moved] = ordered.splice(from, 1);
-      ordered.splice(to, 0, moved);
-
-      const bottomToTop = [...ordered].reverse();
-      let z = 1;
-      for(const it of bottomToTop){
-        it.el.style.zIndex = String(z++);
-      }
-      zCounter = z;
-
-      renderLayers();
     }
 
     function showToast(msg){
@@ -644,8 +611,6 @@
       }
       selected = null;
       updatePointerLock();
-      syncInspector();
-      renderLayers();
     }
 
     function updatePointerLock(){
@@ -665,31 +630,6 @@
       deselect();
       selected = item;
       selected.el.classList.add("selected");
-      syncInspector();
-      renderLayers();
-    }
-
-    function syncInspector(){
-      const has = !!selected;
-      ui.size.disabled = !has;
-      ui.rot.disabled = !has;
-      ui.x.disabled = !has;
-      ui.y.disabled = !has;
-      ui.name.disabled = !has;
-
-      if(!has){
-        ui.size.value = 140;
-        ui.rot.value = 0;
-        ui.x.value = "";
-        ui.y.value = "";
-        ui.name.value = "";
-        return;
-      }
-      ui.size.value = Math.round(selected.w);
-      ui.rot.value = Math.round(selected.rot);
-      ui.x.value = Math.round(selected.x);
-      ui.y.value = Math.round(selected.y);
-      ui.name.value = selected.name || "";
     }
 
     function libById(id){ return LIB.find(x=>x.id===id); }
@@ -713,12 +653,21 @@
       badge.className = "badge";
       badge.textContent = src.label;
 
-      const img = document.createElement("img");
+      const rotateHandle = document.createElement("div");
+      rotateHandle.className = "rotateHandle";
+      rotateHandle.title = "Faire pivoter";
 
+      const resizeHandle = document.createElement("div");
+      resizeHandle.className = "resizeHandle";
+      resizeHandle.title = "Redimensionner";
+
+      const img = document.createElement("img");
       img.src = src.src;
       img.alt = src.label;
 
       el.appendChild(badge);
+      el.appendChild(rotateHandle);
+      el.appendChild(resizeHandle);
       el.appendChild(img);
 
       const item = {
@@ -744,12 +693,13 @@
 
       let drag = null;
       let touchGesture = null;
+      let rotateDrag = null;
+      let resizeDrag = null;
 
       el.addEventListener("pointerdown", (e)=>{
         e.preventDefault();
         select(item);
         updatePointerLock();
-        renderLayers();
         el.setPointerCapture(e.pointerId);
 
         const rect = ws.getBoundingClientRect();
@@ -782,17 +732,118 @@
           item.h = nw;
         }
         item.apply();
-        syncInspector();
       });
 
       el.addEventListener("pointerup", ()=>{
         drag = null;
       });
+      rotateHandle.addEventListener("pointerdown", (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+
+        select(item);
+
+        const rect = ws.getBoundingClientRect();
+        const centerX = item.x + item.w / 2;
+        const centerY = item.y + item.h / 2;
+
+        const pointerX = (e.clientX - rect.left) / zoom;
+        const pointerY = (e.clientY - rect.top) / zoom;
+
+        rotateDrag = {
+          startRot: item.rot,
+          startAngle: Math.atan2(pointerY - centerY, pointerX - centerX) * 180 / Math.PI,
+          centerX,
+          centerY,
+          pointerId: e.pointerId
+        };
+
+        rotateHandle.setPointerCapture(e.pointerId);
+      });
+
+      rotateHandle.addEventListener("pointermove", (e)=>{
+        if(!rotateDrag) return;
+        if(e.pointerId !== rotateDrag.pointerId) return;
+
+        e.preventDefault();
+
+        const rect = ws.getBoundingClientRect();
+        const pointerX = (e.clientX - rect.left) / zoom;
+        const pointerY = (e.clientY - rect.top) / zoom;
+
+        const currentAngle = Math.atan2(pointerY - rotateDrag.centerY, pointerX - rotateDrag.centerX) * 180 / Math.PI;
+        const delta = currentAngle - rotateDrag.startAngle;
+
+        item.rot = rotateDrag.startRot + delta;
+        item.apply();
+      });
+
+      rotateHandle.addEventListener("pointerup", (e)=>{
+        if(!rotateDrag) return;
+        if(e.pointerId !== rotateDrag.pointerId) return;
+
+        rotateDrag = null;
+      });
+
+      rotateHandle.addEventListener("pointercancel", ()=>{
+        rotateDrag = null;
+      });
+      resizeHandle.addEventListener("pointerdown", (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+
+        select(item);
+
+        const rect = ws.getBoundingClientRect();
+        const startX = (e.clientX - rect.left) / zoom;
+        const startY = (e.clientY - rect.top) / zoom;
+
+        resizeDrag = {
+          startX,
+          startY,
+          baseW: item.w,
+          baseH: item.h,
+          pointerId: e.pointerId
+        };
+
+        resizeHandle.setPointerCapture(e.pointerId);
+      });
+
+      resizeHandle.addEventListener("pointermove", (e)=>{
+        if(!resizeDrag) return;
+        if(e.pointerId !== resizeDrag.pointerId) return;
+
+        e.preventDefault();
+
+        const rect = ws.getBoundingClientRect();
+        const currentX = (e.clientX - rect.left) / zoom;
+        const currentY = (e.clientY - rect.top) / zoom;
+
+        const dx = currentX - resizeDrag.startX;
+        const dy = currentY - resizeDrag.startY;
+
+        const d = Math.max(dx, dy);
+        const newSize = clamp(resizeDrag.baseW + d, 30, 2000);
+
+        item.w = newSize;
+        item.h = newSize;
+        item.apply();
+      });
+
+      resizeHandle.addEventListener("pointerup", (e)=>{
+        if(!resizeDrag) return;
+        if(e.pointerId !== resizeDrag.pointerId) return;
+
+        resizeDrag = null;
+      });
+
+      resizeHandle.addEventListener("pointercancel", ()=>{
+        resizeDrag = null;
+      });
 
       el.addEventListener("dblclick", ()=>{
         item.rot = 0;
         item.apply();
-        syncInspector();
       });
 
       el.addEventListener("touchstart", (e)=>{
@@ -856,7 +907,6 @@
           item.y = clamp(touchGesture.baseY + dy, -200, ws.clientHeight - 20);
 
           item.apply();
-          syncInspector();
         }
 
         if(touchGesture.mode === "transform" && e.touches.length === 2){
@@ -890,7 +940,6 @@
           item.y = newCenterY - item.h / 2;
 
           item.apply();
-          syncInspector();
         }
       }, { passive:false });
 
@@ -1002,35 +1051,7 @@
     });
 
     function bindInspector(){
-      ui.size.addEventListener("input", ()=>{
-        if(!selected) return;
-        const v = Number(ui.size.value);
-        selected.w = v; selected.h = v;
-        selected.apply(); syncInspector();
-      });
-      ui.rot.addEventListener("input", ()=>{
-        if(!selected) return;
-        selected.rot = Number(ui.rot.value);
-        selected.apply(); syncInspector();
-      });
-      ui.x.addEventListener("input", ()=>{
-        if(!selected) return;
-        selected.x = Number(ui.x.value) || 0;
-        selected.apply();
-      });
-      ui.y.addEventListener("input", ()=>{
-        if(!selected) return;
-        selected.y = Number(ui.y.value) || 0;
-        selected.apply();
-      });
-      ui.name.addEventListener("input", ()=>{
-        if(!selected) return;
-        selected.name = ui.name.value;
-        const badge = selected.el.querySelector(".badge");
-        if(badge) badge.textContent = ui.name.value || libById(selected.libId)?.label || "Item";
-      });
-
-      ui.zoom.addEventListener("input", ()=>{
+        ui.zoom.addEventListener("input", ()=>{
         zoom = Number(ui.zoom.value) / 100;
 
         ws.style.transformOrigin = "center center";
@@ -1075,13 +1096,11 @@
         if(e.ctrlKey && (e.key === "]" || e.key === "}")){
           e.preventDefault();
           selected.el.style.zIndex = String(++zCounter);
-          renderLayers();
         }
 
         if(e.ctrlKey && (e.key === "[" || e.key === "{")){
           e.preventDefault();
           selected.el.style.zIndex = "1";
-          renderLayers();
         }
       });
 
@@ -1266,8 +1285,6 @@
         ws.querySelectorAll(".item").forEach(el=>el.remove());
         ITEMS.length = 0;
         selected = null;
-        renderLayers();
-        syncInspector();
 
         if(data?.items?.length){
           for(const it of data.items){
@@ -1304,8 +1321,6 @@
 
      ITEMS.length = 0;   // vide le tableau des calques
      selected = null;    // enlève la sélection
-     renderLayers();     // rafraîchit le panneau calques
-     syncInspector();    // remet l'inspecteur à zéro
 
      showToast("Zone vidée");
    });
@@ -1315,19 +1330,16 @@
       selected.x = (ws.clientWidth - selected.w)/2;
       selected.y = (ws.clientHeight - selected.h)/2;
       selected.apply();
-      syncInspector();
     });
 
     document.getElementById("btnToFront").addEventListener("click", ()=>{
       if(!selected) return;
       selected.el.style.zIndex = String(++zCounter);
-      renderLayers();
     });
 
     document.getElementById("btnToBack").addEventListener("click", ()=>{
       if(!selected) return;
       selected.el.style.zIndex = "1";
-      renderLayers();
     });
     document.getElementById("btnFlipH").addEventListener("click", ()=>{
       if(!selected) return;
@@ -1348,7 +1360,6 @@
 
     renderPalette();
     bindInspector();
-    syncInspector();
   </script>
 </body>
 </html>
