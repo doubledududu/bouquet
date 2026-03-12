@@ -12,13 +12,70 @@
     header .left { display:flex; gap:12px; align-items:center; }
     header .title { font-weight:900; color:#d8c1c7;}
     header .hint { color:#000000; font-size:13px;}
-    header .btns { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    button {
-      background: #d8c1c7; color:#111111; border: 1px solid var(--line);
-      padding: 8px 10px; border-radius:10px; cursor:pointer; font-size:13px;
+    header .btns {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+      flex-wrap:wrap;
     }
-    button:hover { border-color:#ffffff; }
-    button.primary { border-color: rgba(122,162,255,.6); box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset; }
+    button {
+      background: #d8c1c7;
+      color:#111111;
+      border: 1px solid var(--line);
+      padding: 0;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:600;
+    }
+
+    button:hover {
+      border-color:#ffffff;
+    }
+
+    button.primary {
+      border-color: rgba(122,162,255,.6);
+      box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset;
+    }
+
+    .toolBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:8px 12px;
+      text-align:center;
+      flex:0 0 auto;
+    }
+
+    .toolBtn img{
+      width:18px;
+      height:18px;
+      object-fit:contain;
+      display:block;
+      flex:0 0 auto;
+      pointer-events:none;
+    }
+
+    .toolBtn span{
+      line-height:1;
+      white-space:nowrap;
+    }
+    
+    .exportBtn{
+      background:#dff1e3;
+      color:#1f2a20;
+      border-color: rgba(122,162,255,.6);
+      box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset;
+    }
+
+    .exportBtn img{
+      width:18px;
+      height:18px;
+    }
+
     main { display:grid; grid-template-columns: 320px 1fr; height: calc(100vh - 54px); }
     aside { border-right:1px solid var(--line); background:var(--panel); padding:12px; overflow:auto; }
     .section { margin-bottom:14px; }
@@ -271,8 +328,6 @@
     .layerRow.dropTarget{ outline:2px dashed rgba(122,162,255,.9); outline-offset:2px; }
       
   
-    .item.pe-none { pointer-events: none; }
-
     .paletteSlogan{
       font-weight: 900;          /* bien gras comme le titre */
       font-size: 16px;           /* légèrement plus petit que le header */
@@ -291,6 +346,10 @@
         .resizeHandle {
           display: none !important;
         }
+
+      .zoomSection{
+        display:none;
+      }  
 
       header {
         align-items: flex-start;
@@ -324,10 +383,43 @@
       }
 
       header .btns button {
-        width: 100%;
-        min-height: 36px;
+        width: auto;
+        min-height: 38px;
         font-size: 11px;
-        padding: 6px;
+        padding: 0;
+      }
+
+      header .btns {
+        align-items: stretch;
+      }
+
+      .toolBtn{
+        gap:5px;
+        min-height:38px;
+        padding:8px 10px;
+      }
+
+      .toolBtn img{
+        width:15px;
+        height:15px;
+      }
+
+      .toolBtn span{
+        font-size:10px;
+        line-height:1;
+      }
+
+      .exportBtn{
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: auto;
+        min-width: 180px;
+        padding: 10px 16px;
+      }
+
+      .exportBtn img{
+        width:18px;
+        height:18px;
       }
 
       main {
@@ -455,6 +547,11 @@
       #palette .card .label {
         font-size: 9px;
       }
+
+      .exportBtn{
+        width: auto;
+        min-width: 170px;
+      }
     }
 
 
@@ -467,22 +564,44 @@
       <div class="hint">Clique pour ajouter. Glisse pour déplacer. <span class="kbd">Suppr</span> efface. <span class="kbd">Ctrl+D</span> duplique.</div>
     </div>
     <div class="btns">
-      <button id="btnClear">Tout effacer</button>
-      <button id="btnCenter">Centrer sélection</button>
-      <button id="btnFlipH">Miroir H</button>
-      <button id="btnFlipV">Miroir V</button>
-      <button id="btnToBack">Reculer le calque</button>
-      <button id="btnToFront">Avancer le calque</button>
-      <button class="primary" id="btnExportPNG">Exporter image (PNG)</button>
+      <button class="toolBtn" id="btnClear">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
+        <span>Effacer</span>
+      </button>
+
+      <button class="toolBtn" id="btnCenter">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/center_fmldze.png" alt="">
+        <span>Centrer</span>
+      </button>
+
+      <button class="toolBtn" id="btnFlipH">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/flip_H_mdaypu.png" alt="">
+        <span>Miroir H</span>
+      </button>
+
+      <button class="toolBtn" id="btnFlipV">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334752/flip_V_q3v1x1.png" alt="">
+        <span>Miroir V</span>
+      </button>
+
+      <button class="toolBtn" id="btnToBack">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334749/backward_oxnwqt.png" alt="">
+        <span>Reculer</span>
+      </button>
+
+      <button class="toolBtn" id="btnToFront">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/forward_mmncyj.png" alt="">
+        <span>Avancer</span>
+      </button>
+
+      <button class="toolBtn primary exportBtn" id="btnExportPNG">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334751/save_woziav.png" alt="">
+        <span>Exporter</span>
+      </button>
     </div>
   </header>
 
   <main>
-
-    <div class="workwrap">
-      <div class="workspace" id="ws" aria-label="workspace"></div>
-      <div class="dropNote"></div>
-    </div>
 
     <aside>
       <details class="section" open>
@@ -493,7 +612,7 @@
         </div>
       </details>
 
-      <details class="section" open>
+      <details class="section zoomSection" open>
         <summary><h3>Zoom</h3></summary>
         <div class="row">
           <label>Zoom</label>
@@ -501,6 +620,12 @@
         </div>
       </details>
     </aside>
+
+    <div class="workwrap">
+      <div class="workspace" id="ws" aria-label="workspace"></div>
+      <div class="dropNote"></div>
+    </div>
+
   </main>
 
   <div class="toast" id="toast"></div>
@@ -616,13 +741,6 @@
     function updatePointerLock(){
       const els = ws.querySelectorAll(".item");
       els.forEach(el => el.classList.remove("pe-none"));
-
-      if(!selected) return;
-
-      // On coupe les clics sur tous les autres items
-      els.forEach(el=>{
-        if(el !== selected.el) el.classList.add("pe-none");
-      });
     }
 
     function select(item){
