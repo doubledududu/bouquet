@@ -1560,10 +1560,19 @@
       const W = Math.max(1, Math.ceil(maxX - minX));
       const H = Math.max(1, Math.ceil(maxY - minY));
 
+      const EXPORT_SCALE = Math.max(3, Math.ceil(window.devicePixelRatio || 1));
+
       const canvas = document.createElement("canvas");
-      canvas.width = W;
-      canvas.height = H;
-      const ctx = canvas.getContext("2d");
+      canvas.width = Math.round(W * EXPORT_SCALE);
+      canvas.height = Math.round(H * EXPORT_SCALE);
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      ctx.scale(EXPORT_SCALE, EXPORT_SCALE);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
 
       // fond transparent, ou blanc si tu veux
       // ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,W,H);
