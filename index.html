@@ -346,6 +346,14 @@
       margin-top: 10px;
     }
 
+    .mobileFabWrap,
+    .mobileToolsPanel,
+    .mobileToolsFab,
+    .mobileExportFab,
+    .mobileActionBtn{
+      display:none;
+    }
+
     /* ===== Responsive mobile / tablette ===== */
     @media (min-width: 901px) {
       .zoomSection{
@@ -430,22 +438,7 @@
       }
 
       header .btns {
-        position: static;
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-      }
-
-      header .btns button {
-        width: 100%;
-        min-height: 38px;
-        font-size: 11px;
-        padding: 0;
-      }
-
-      header .btns {
-        align-items: stretch;
+        display:none;
       }
 
       .toolBtn{
@@ -577,6 +570,97 @@
         outline-width: 3px;
         outline-offset: 2px;
       }
+
+      .mobileFabWrap{
+        display:block;
+        position:fixed;
+        right:12px;
+        bottom:108px;
+        z-index:60;
+        pointer-events:none;
+      }
+
+      .mobileToolsPanel{
+        position:absolute;
+        right:0;
+        bottom:58px;
+        display:none;
+        flex-direction:column;
+        gap:8px;
+        pointer-events:auto;
+      }
+
+      .mobileToolsPanel.open{
+        display:flex;
+      }
+
+      .mobileToolsFab,
+      .mobileExportFab,
+      .mobileActionBtn{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        border:1px solid var(--line);
+        border-radius:14px;
+        background:#d8c1c7;
+        color:#111111;
+        box-shadow:0 6px 18px rgba(0,0,0,.18);
+        pointer-events:auto;
+      }
+
+      .mobileToolsFab{
+        min-height:48px;
+        min-width:110px;
+        padding:12px 16px;
+        font-size:14px;
+        font-weight:700;
+      }
+
+      .mobileExportFab{
+        position:fixed;
+        left:12px;
+        right:auto;
+        bottom:108px;
+        min-height:48px;
+        padding:12px 16px;
+        background:#dff1e3;
+        color:#1f2a20;
+        border-color: rgba(122,162,255,.6);
+        box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset, 0 6px 18px rgba(0,0,0,.18);
+        font-weight:700;
+        z-index:60;
+      }
+
+      .mobileExportFab img,
+      .mobileActionBtn img{
+        width:16px;
+        height:16px;
+        object-fit:contain;
+        pointer-events:none;
+      }
+
+      .mobileExportFab span,
+      .mobileActionBtn span{
+        line-height:1;
+        white-space:nowrap;
+        font-size:12px;
+      }
+
+      .mobileActionBtn{
+        justify-content:flex-start;
+        min-width:150px;
+        min-height:44px;
+        padding:10px 12px;
+      }
+
+      aside {
+        padding: 8px 10px 170px 10px;
+      }
+
+      aside details.section:first-child {
+        padding: 8px 10px 12px 10px;
+      }
     }
 
     @media (max-width: 600px) {
@@ -605,6 +689,21 @@
       .exportBtn{
         width: auto;
         min-width: 170px;
+      }
+
+      .mobileToolsFab{
+        min-width:100px;
+        min-height:46px;
+        padding:10px 14px;
+      }
+
+      .mobileExportFab{
+        min-height:46px;
+        padding:10px 14px;
+      }
+
+      .mobileActionBtn{
+        min-width:140px;
       }
     }
 
@@ -681,6 +780,49 @@
     </div>
 
   </main>
+
+  <div class="mobileFabWrap">
+    <button class="mobileExportFab" id="btnMobileExport">
+      <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334751/save_woziav.png" alt="">
+      <span>Exporter</span>
+    </button>
+
+    <div class="mobileToolsPanel" id="mobileToolsPanel">
+      <button class="mobileActionBtn" id="btnMobileClear">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
+        <span>Effacer</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileCenter">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/center_fmldze.png" alt="">
+        <span>Centrer</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileFlipH">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/flip_H_mdaypu.png" alt="">
+        <span>Miroir H</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileFlipV">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334752/flip_V_q3v1x1.png" alt="">
+        <span>Miroir V</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileBack">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334749/backward_oxnwqt.png" alt="">
+        <span>Reculer</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileFront">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/forward_mmncyj.png" alt="">
+        <span>Avancer</span>
+      </button>
+    </div>
+
+    <button class="mobileToolsFab" id="btnMobileTools">
+      <span>Outils</span>
+    </button>
+  </div>
 
   <div class="toast" id="toast"></div>
 
@@ -1591,8 +1733,61 @@
     resizeWorkspaceForMobile();
     window.addEventListener("resize", resizeWorkspaceForMobile);
 
+    function bindMobileQuickActions(){
+      const toolsBtn = document.getElementById("btnMobileTools");
+      const toolsPanel = document.getElementById("mobileToolsPanel");
+      const exportBtn = document.getElementById("btnMobileExport");
+
+      function closeMobileTools(){
+        toolsPanel.classList.remove("open");
+      }
+
+      function bindMobileAction(mobileId, desktopId){
+        const mobileBtn = document.getElementById(mobileId);
+        const desktopBtn = document.getElementById(desktopId);
+
+        if(!mobileBtn || !desktopBtn) return;
+
+        mobileBtn.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          desktopBtn.click();
+          closeMobileTools();
+        });
+      }
+
+      if(toolsBtn && toolsPanel){
+        toolsBtn.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          toolsPanel.classList.toggle("open");
+        });
+
+        toolsPanel.addEventListener("click", (e)=>{
+          e.stopPropagation();
+        });
+
+        document.addEventListener("click", ()=>{
+          closeMobileTools();
+        });
+      }
+
+      if(exportBtn){
+        exportBtn.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          document.getElementById("btnExportPNG").click();
+        });
+      }
+
+      bindMobileAction("btnMobileClear", "btnClear");
+      bindMobileAction("btnMobileCenter", "btnCenter");
+      bindMobileAction("btnMobileFlipH", "btnFlipH");
+      bindMobileAction("btnMobileFlipV", "btnFlipV");
+      bindMobileAction("btnMobileBack", "btnToBack");
+      bindMobileAction("btnMobileFront", "btnToFront");
+    }
+
     renderPalette();
     bindInspector();
+    bindMobileQuickActions();
   </script>
 </body>
 </html>
