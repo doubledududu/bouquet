@@ -486,7 +486,8 @@
       .workwrap {
         order: 1;
         padding: 8px;
-        overflow: visible;
+        overflow: auto;
+        min-height: calc(100vh - 250px);
       }
 
       aside {
@@ -500,10 +501,9 @@
       .workspace {
         width: 100%;
         max-width: 600px;
-        height: 72vw;
-        max-height: 520px;
-        min-height: 320px;
+        height: clamp(420px, calc(100vh - 270px), 700px);
         margin: 0 auto;
+        overflow: hidden;
       }
 
       aside details.section:first-child {
@@ -585,8 +585,7 @@
       }
 
       .workspace {
-        height: 78vw;
-        min-height: 280px;
+        height: clamp(380px, calc(100vh - 240px), 620px);
       }
 
       #palette .card {
@@ -896,13 +895,18 @@
         const dy = cy - drag.startY;
 
         if(drag.mode === "move"){
-          item.x = clamp(drag.baseX + dx, -200, ws.clientWidth - 20);
-          item.y = clamp(drag.baseY + dy, -200, ws.clientHeight - 20);
+          const bounds = getMoveBounds(item.w, item.h);
+          item.x = clamp(drag.baseX + dx, bounds.minX, bounds.maxX);
+          item.y = clamp(drag.baseY + dy, bounds.minY, bounds.maxY);
         } else {
           const d = Math.max(dx, dy);
-          const nw = clamp(drag.baseW + d, 30, 2000);
+          const nw = clamp(drag.baseW + d, 30, getMaxItemSize());
           item.w = nw;
           item.h = nw;
+
+          const bounds = getMoveBounds(item.w, item.h);
+          item.x = clamp(item.x, bounds.minX, bounds.maxX);
+          item.y = clamp(item.y, bounds.minY, bounds.maxY);
         }
         item.apply();
       });
@@ -996,10 +1000,15 @@
         const dy = currentY - resizeDrag.startY;
 
         const d = Math.max(dx, dy);
-        const newSize = clamp(resizeDrag.baseW + d, 30, 2000);
+        const newSize = clamp(resizeDrag.baseW + d, 30, getMaxItemSize());
 
         item.w = newSize;
         item.h = newSize;
+
+        const bounds = getMoveBounds(item.w, item.h);
+        item.x = clamp(item.x, bounds.minX, bounds.maxX);
+        item.y = clamp(item.y, bounds.minY, bounds.maxY);
+
         item.apply();
       });
 
@@ -1076,8 +1085,9 @@
           const dx = p.x - touchGesture.startX;
           const dy = p.y - touchGesture.startY;
 
-          item.x = clamp(touchGesture.baseX + dx, -200, ws.clientWidth - 20);
-          item.y = clamp(touchGesture.baseY + dy, -200, ws.clientHeight - 20);
+          const bounds = getMoveBounds(item.w, item.h);
+          item.x = clamp(touchGesture.baseX + dx, bounds.minX, bounds.maxX);
+          item.y = clamp(touchGesture.baseY + dy, bounds.minY, bounds.maxY);
 
           item.apply();
         }
@@ -1095,7 +1105,7 @@
           const currentCenterY = (p1.y + p2.y) / 2;
 
           const scaleRatio = currentDistance / touchGesture.startDistance;
-          const newSize = clamp(touchGesture.baseW * scaleRatio, 30, 2000);
+          const newSize = clamp(touchGesture.baseW * scaleRatio, 30, getMaxItemSize());
 
           const angleDelta = currentAngle - touchGesture.startAngle;
 
@@ -1111,6 +1121,10 @@
 
           item.x = newCenterX - item.w / 2;
           item.y = newCenterY - item.h / 2;
+
+          const bounds = getMoveBounds(item.w, item.h);
+          item.x = clamp(item.x, bounds.minX, bounds.maxX);
+          item.y = clamp(item.y, bounds.minY, bounds.maxY);
 
           item.apply();
         }
@@ -1222,6 +1236,32 @@
         return 180;
       }
       return 340;
+    }
+
+    function getMaxItemSize(){
+      if(window.innerWidth <= 900){
+        return Math.min(ws.clientWidth, ws.clientHeight) * 0.95;
+      }
+      return 2000;
+    }
+
+    function getMoveBounds(itemW, itemH){
+      if(window.innerWidth <= 900){
+        const pad = 10;
+        return {
+          minX: pad,
+          minY: pad,
+          maxX: ws.clientWidth - itemW - pad,
+          maxY: ws.clientHeight - itemH - pad
+        };
+      }
+
+      return {
+        minX: -200,
+        minY: -200,
+        maxX: ws.clientWidth - 20,
+        maxY: ws.clientHeight - 20
+      };
     }
 
     ws.addEventListener("pointerdown", (e)=>{
