@@ -871,6 +871,7 @@
     let selected = null;
     let zCounter = 1;
     let zoom = 1;
+    let activeTouchItem = null;
     
 
     const ITEMS = [];
@@ -1173,6 +1174,12 @@
       });
 
       el.addEventListener("touchstart", (e)=>{
+        if(activeTouchItem && activeTouchItem !== item){
+          e.preventDefault();
+          return;
+        }
+
+        activeTouchItem = item;
         select(item);
 
         const rect = ws.getBoundingClientRect();
@@ -1218,6 +1225,7 @@
       }, { passive:false });
 
       el.addEventListener("touchmove", (e)=>{
+        if(activeTouchItem !== item) return;
         if(!touchGesture) return;
 
         const rect = ws.getBoundingClientRect();
@@ -1275,8 +1283,11 @@
       }, { passive:false });
 
       el.addEventListener("touchend", (e)=>{
+        if(activeTouchItem !== item) return;
+
         if(e.touches.length === 0){
           touchGesture = null;
+          activeTouchItem = null;
           return;
         }
 
@@ -1319,7 +1330,10 @@
       }, { passive:false });
 
       el.addEventListener("touchcancel", ()=>{
-        touchGesture = null;
+        if(activeTouchItem === item){
+          touchGesture = null;
+          activeTouchItem = null;
+        }
       });
       
       registerItem(item);
