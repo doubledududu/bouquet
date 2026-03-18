@@ -263,6 +263,30 @@
       margin-top: 10px;
     }
 
+    .ws-placeholder{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .ws-placeholder span{
+      font-size:15px;
+      font-weight:600;
+      color:rgba(255,255,255,.25);
+      text-align:center;
+      padding:20px;
+      line-height:1.4;
+    }
+
+    .ws-placeholder.hidden{ display:none; }
+
+    .ws-placeholder-mobile{ display:none; }
+    .ws-placeholder-desktop{ display:block; }
+
     .mobileFabWrap,
     .mobileToolsPanel,
     .mobileToolsFab,
@@ -404,6 +428,9 @@
 
       header .hint.desktop-hint { display:none; }
       header .hint.mobile-hint { display:block; }
+
+      .ws-placeholder-desktop{ display:none; }
+      .ws-placeholder-mobile{ display:block; }
 
       header {
         align-items: flex-start;
@@ -765,7 +792,12 @@
     </aside>
 
     <div class="workwrap">
-      <div class="workspace" id="ws" aria-label="workspace"></div>
+      <div class="workspace" id="ws" aria-label="workspace">
+        <div class="ws-placeholder" id="wsPlaceholder">
+          <span class="ws-placeholder-desktop">Glisse un flash ici pour commencer</span>
+          <span class="ws-placeholder-mobile">Choisis un flash ci-dessous pour commencer</span>
+        </div>
+      </div>
       <div class="dropNote"></div>
     </div>
 
@@ -802,6 +834,14 @@
       <button class="mobileActionBtn" id="btnMobileFlipV">
         <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334752/flip_V_q3v1x1.png" alt="">
         <span>Miroir V</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileRotL">
+        <span>↶ -15°</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileRotR">
+        <span>↷ +15°</span>
       </button>
 
       <button class="mobileActionBtn" id="btnMobileBack">
@@ -923,6 +963,7 @@
         if(badge) badge.textContent = obj.name;
       }
       deselect();
+      updatePlaceholder();
       showToast("Annulé");
     }
 
@@ -1791,7 +1832,50 @@
       bindMobileAction("btnMobileFlipV", "btnFlipV");
       bindMobileAction("btnMobileBack", "btnToBack");
       bindMobileAction("btnMobileFront", "btnToFront");
+
+      // Rotation mobile directe (pas de bouton desktop correspondant)
+      document.getElementById("btnMobileRotL")?.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        if(!selected){ showToast("Aucun élément sélectionné"); closeMobileTools(); return; }
+        pushUndo();
+        selected.rot -= 15;
+        selected.apply();
+        closeMobileTools();
+      });
+
+      document.getElementById("btnMobileRotR")?.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        if(!selected){ showToast("Aucun élément sélectionné"); closeMobileTools(); return; }
+        pushUndo();
+        selected.rot += 15;
+        selected.apply();
+        closeMobileTools();
+      });
     }
+
+    // ===== Placeholder workspace =====
+    function updatePlaceholder(){
+      const ph = document.getElementById("wsPlaceholder");
+      if(!ph) return;
+      if(ITEMS.length > 0){
+        ph.classList.add("hidden");
+      } else {
+        ph.classList.remove("hidden");
+      }
+    }
+
+    // Patcher addItem et removeItemByUid pour mettre à jour le placeholder
+    const _origRegisterItem = registerItem;
+    registerItem = function(item){
+      _origRegisterItem(item);
+      updatePlaceholder();
+    };
+
+    const _origRemoveItemByUid = removeItemByUid;
+    removeItemByUid = function(uid){
+      _origRemoveItemByUid(uid);
+      updatePlaceholder();
+    };
 
     // ===== Init =====
     resizeWorkspaceForMobile();
@@ -1799,6 +1883,7 @@
     renderPalette();
     bindKeyboard();
     bindMobileQuickActions();
+    updatePlaceholder();
   </script>
 </body>
 </html>
