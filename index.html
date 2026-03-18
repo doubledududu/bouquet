@@ -170,9 +170,7 @@
       cursor:nwse-resize;
     }
 
-    .item.selected .resizeHandle{
-      display:block;
-    }
+    .item.selected .resizeHandle{ display:block; }
 
     .resizeHandle::before{
       content:"↘";
@@ -187,13 +185,9 @@
       line-height:1;
     }
 
-    .resizeHandle:active{
-      cursor:nwse-resize;
-    }
+    .resizeHandle:active{ cursor:nwse-resize; }
 
-    .item.selected .rotateHandle{
-      display:block;
-    }
+    .item.selected .rotateHandle{ display:block; }
 
     .rotateHandle::before{
       content:"↻";
@@ -208,10 +202,7 @@
       line-height:1;
     }
 
-    .rotateHandle:active{
-      cursor:grabbing;
-    }
-
+    .rotateHandle:active{ cursor:grabbing; }
 
     .item img { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; }
     .item.touch-blocked {
@@ -260,92 +251,12 @@
       border-radius: 50%;
       border: none;
     }
-    main { 
-      display:grid; 
-      grid-template-columns: 320px 1fr; 
-      height: calc(100vh - 54px); 
-    }
 
-    .layersPanel{
-      border-left:1px solid var(--line);
-      background:var(--panel);
-      padding:12px;
-      overflow:auto;
-    }
-
-    .layersList{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    .layerRow{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#7b8c7d;
-      cursor:pointer;
-      user-select:none;
-    }
-
-    .layerRow:hover{ border-color:#ffffff; }
-    .layerRow.active{ outline:2px solid rgba(122,162,255,.9); outline-offset:2px; }
-
-    .layerThumb{
-      width:34px;
-      height:34px;
-      border-radius:8px;
-      border:1px solid rgba(255,255,255,.15);
-      background:rgba(0,0,0,.15);
-      object-fit:contain;
-      flex:0 0 auto;
-    }
-
-    .layerName{
-      font-size:12px;
-      color:var(--muted);
-      flex:1 1 auto;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    .layerZ{
-      font-size:11px;
-      color:rgba(0,0,0,.55);
-      background:rgba(255,255,255,.35);
-      padding:2px 6px;
-      border-radius:999px;
-    }
-    #layers{ display:flex; flex-direction:column; gap:6px; }
-
-    .layerRow{
-      background:#7b8c7d;
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:6px 8px;
-      cursor:pointer;
-      font-size:12px;
-    }
-
-    .layerRow.selected{
-      outline:2px solid rgba(122,162,255,.9);
-
-    }
-
-    .layerRow{ cursor:grab; }
-    .layerRow.dragging{ opacity:.55; }
-    .layerRow.dropTarget{ outline:2px dashed rgba(122,162,255,.9); outline-offset:2px; }
-      
-  
     .paletteSlogan{
-      font-weight: 900;          /* bien gras comme le titre */
-      font-size: 16px;           /* légèrement plus petit que le header */
-      color: #283429;            /* même teinte que ton titre */
-      letter-spacing: .02em;     /* côté arrondi / doux */
+      font-weight: 900;
+      font-size: 16px;
+      color: #283429;
+      letter-spacing: .02em;
       margin-top: 10px;
     }
 
@@ -357,12 +268,8 @@
       display:none;
     }
 
-    /* ===== Responsive mobile / tablette ===== */
+    /* ===== Desktop ===== */
     @media (min-width: 901px) {
-      .zoomSection{
-        display:none;
-      }
-
       header {
         justify-content:flex-start;
       }
@@ -402,19 +309,16 @@
       }
     }
 
+    /* ===== Mobile / tablette ===== */
     @media (max-width: 900px) {
       body {
         overflow-x: hidden;
       }
 
       .rotateHandle,
-        .resizeHandle {
-          display: none !important;
-        }
-
-      .zoomSection{
-        display:none;
-      }  
+      .resizeHandle {
+        display: none !important;
+      }
 
       header {
         align-items: flex-start;
@@ -711,8 +615,6 @@
         min-width:140px;
       }
     }
-
-
   </style>
 </head>
 <body>
@@ -767,14 +669,6 @@
         <div class="grid" id="palette"></div>
         <div class="paletteSlogan">
           Personnalise ton propre bouquet !
-        </div>
-      </details>
-
-      <details class="section zoomSection" open>
-        <summary><h3>Zoom</h3></summary>
-        <div class="row">
-          <label>Zoom</label>
-          <input id="zoom" type="range" min="40" max="140" value="100" />
         </div>
       </details>
     </aside>
@@ -832,44 +726,37 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // Bibliothèque d'éléments en PNG.
-    // Mets tes fichiers dans un dossier accessible, par ex: ./assets/rose.png
-    // Si tu mets tes images dans /assets/ alors src: "assets/rose.png" marche si le fichier est au bon endroit.
     const LIB = [
-  {
-    id: "Branche",
-    label: "Branche",
-    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067820/619521521_882257137724350_4229399370122049159_n_un4f0d.png"
-  },
-  {
-    id: "Liane Torsade",
-    label: "Liane Torsade",
-    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067819/616742827_1779079892762636_82883859183779307_n_mg2klm.png"
-  },
-  {
-    id: "Grenouille",
-    label: "Grenouille",
-    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772101915/617055237_1374553773884231_136022804121882196_n_makez9.png"
-  },
-  {
-    id: "Monstera",
-    label: "Monstera",
-    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067825/619367847_1197128552086410_1477195909441759372_n_dykibo.png"
-  },
-  {
-    id: "Pillon",
-    label: "Pillon",
-    src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067852/616334821_1552614829401272_758795181194598895_n_wcmyqa.png"
-  },
-];
- 
+      {
+        id: "Branche",
+        label: "Branche",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067820/619521521_882257137724350_4229399370122049159_n_un4f0d.png"
+      },
+      {
+        id: "Liane Torsade",
+        label: "Liane Torsade",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067819/616742827_1779079892762636_82883859183779307_n_mg2klm.png"
+      },
+      {
+        id: "Grenouille",
+        label: "Grenouille",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772101915/617055237_1374553773884231_136022804121882196_n_makez9.png"
+      },
+      {
+        id: "Monstera",
+        label: "Monstera",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067825/619367847_1197128552086410_1477195909441759372_n_dykibo.png"
+      },
+      {
+        id: "Pillon",
+        label: "Pillon",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067852/616334821_1552614829401272_758795181194598895_n_wcmyqa.png"
+      },
+    ];
+
     const ws = document.getElementById("ws");
     const palette = document.getElementById("palette");
     const toast = document.getElementById("toast");
-
-    const ui = {
-      zoom: document.getElementById("zoom")
-    };
 
     let selected = null;
     let zCounter = 1;
@@ -889,7 +776,7 @@
         }
       });
     }
-    
+
     const ITEMS = [];
     let uidCounter = 1;
 
@@ -902,6 +789,10 @@
     function removeItemByUid(uid){
       const idx = ITEMS.findIndex(it => it.uid === uid);
       if(idx >= 0) ITEMS.splice(idx, 1);
+    }
+
+    function findItemByUid(uid){
+      return ITEMS.find(it => it.uid === uid);
     }
 
     function showToast(msg){
@@ -936,7 +827,7 @@
           const centerY = (ws.clientHeight / 2) - (defaultSize / 2);
           addItem(item.id, centerX, centerY);
         });
-        
+
         card.addEventListener("dragstart", (e)=>{
           e.dataTransfer.setData("text/plain", item.id);
         });
@@ -950,12 +841,6 @@
         selected.el.classList.remove("selected");
       }
       selected = null;
-      updatePointerLock();
-    }
-
-    function updatePointerLock(){
-      const els = ws.querySelectorAll(".item");
-      els.forEach(el => el.classList.remove("pe-none"));
     }
 
     function select(item){
@@ -995,6 +880,7 @@
       resizeHandle.title = "Redimensionner";
 
       const img = document.createElement("img");
+      img.crossOrigin = "anonymous"; // FIX: CORS pour export canvas
       img.src = src.src;
       img.alt = src.label;
 
@@ -1030,9 +916,11 @@
       let resizeDrag = null;
 
       el.addEventListener("pointerdown", (e)=>{
+        // Ne pas capturer si c'est un handle
+        if(e.target === rotateHandle || e.target === resizeHandle) return;
+
         e.preventDefault();
         select(item);
-        updatePointerLock();
         el.setPointerCapture(e.pointerId);
 
         const rect = ws.getBoundingClientRect();
@@ -1040,7 +928,7 @@
         const startY = (e.clientY - rect.top) / zoom;
 
         drag = {
-          mode: e.shiftKey ? "resize" : "move",
+          mode: "move",
           startX, startY,
           baseX: item.x, baseY: item.y,
           baseW: item.w, baseH: item.h
@@ -1059,15 +947,6 @@
           const bounds = getMoveBounds(item.w, item.h);
           item.x = clamp(drag.baseX + dx, bounds.minX, bounds.maxX);
           item.y = clamp(drag.baseY + dy, bounds.minY, bounds.maxY);
-        } else {
-          const d = Math.max(dx, dy);
-          const nw = clamp(drag.baseW + d, 30, getMaxItemSize());
-          item.w = nw;
-          item.h = nw;
-
-          const bounds = getMoveBounds(item.w, item.h);
-          item.x = clamp(item.x, bounds.minX, bounds.maxX);
-          item.y = clamp(item.y, bounds.minY, bounds.maxY);
         }
         item.apply();
       });
@@ -1075,16 +954,16 @@
       el.addEventListener("pointerup", ()=>{
         drag = null;
       });
+
+      // --- Rotate handle ---
       rotateHandle.addEventListener("pointerdown", (e)=>{
         e.preventDefault();
         e.stopPropagation();
-
         select(item);
 
         const rect = ws.getBoundingClientRect();
         const centerX = item.x + item.w / 2;
         const centerY = item.y + item.h / 2;
-
         const pointerX = (e.clientX - rect.left) / zoom;
         const pointerY = (e.clientY - rect.top) / zoom;
 
@@ -1095,71 +974,53 @@
           centerY,
           pointerId: e.pointerId
         };
-
         rotateHandle.setPointerCapture(e.pointerId);
       });
 
       rotateHandle.addEventListener("pointermove", (e)=>{
-        if(!rotateDrag) return;
-        if(e.pointerId !== rotateDrag.pointerId) return;
-
+        if(!rotateDrag || e.pointerId !== rotateDrag.pointerId) return;
         e.preventDefault();
 
         const rect = ws.getBoundingClientRect();
         const pointerX = (e.clientX - rect.left) / zoom;
         const pointerY = (e.clientY - rect.top) / zoom;
-
         const currentAngle = Math.atan2(pointerY - rotateDrag.centerY, pointerX - rotateDrag.centerX) * 180 / Math.PI;
-        const delta = currentAngle - rotateDrag.startAngle;
-
-        item.rot = rotateDrag.startRot + delta;
+        item.rot = rotateDrag.startRot + (currentAngle - rotateDrag.startAngle);
         item.apply();
       });
 
       rotateHandle.addEventListener("pointerup", (e)=>{
-        if(!rotateDrag) return;
-        if(e.pointerId !== rotateDrag.pointerId) return;
-
-        rotateDrag = null;
+        if(rotateDrag && e.pointerId === rotateDrag.pointerId) rotateDrag = null;
       });
 
-      rotateHandle.addEventListener("pointercancel", ()=>{
-        rotateDrag = null;
-      });
+      rotateHandle.addEventListener("pointercancel", ()=>{ rotateDrag = null; });
+
+      // --- Resize handle ---
       resizeHandle.addEventListener("pointerdown", (e)=>{
         e.preventDefault();
         e.stopPropagation();
-
         select(item);
 
         const rect = ws.getBoundingClientRect();
-        const startX = (e.clientX - rect.left) / zoom;
-        const startY = (e.clientY - rect.top) / zoom;
-
         resizeDrag = {
-          startX,
-          startY,
+          startX: (e.clientX - rect.left) / zoom,
+          startY: (e.clientY - rect.top) / zoom,
           baseW: item.w,
           baseH: item.h,
           pointerId: e.pointerId
         };
-
         resizeHandle.setPointerCapture(e.pointerId);
       });
 
       resizeHandle.addEventListener("pointermove", (e)=>{
-        if(!resizeDrag) return;
-        if(e.pointerId !== resizeDrag.pointerId) return;
-
+        if(!resizeDrag || e.pointerId !== resizeDrag.pointerId) return;
         e.preventDefault();
 
         const rect = ws.getBoundingClientRect();
         const currentX = (e.clientX - rect.left) / zoom;
         const currentY = (e.clientY - rect.top) / zoom;
-
         const dx = currentX - resizeDrag.startX;
         const dy = currentY - resizeDrag.startY;
-
         const d = Math.max(dx, dy);
         const newSize = clamp(resizeDrag.baseW + d, 30, getMaxItemSize());
 
@@ -1169,26 +1030,22 @@
         const bounds = getMoveBounds(item.w, item.h);
         item.x = clamp(item.x, bounds.minX, bounds.maxX);
         item.y = clamp(item.y, bounds.minY, bounds.maxY);
-
         item.apply();
       });
 
       resizeHandle.addEventListener("pointerup", (e)=>{
-        if(!resizeDrag) return;
-        if(e.pointerId !== resizeDrag.pointerId) return;
-
-        resizeDrag = null;
+        if(resizeDrag && e.pointerId === resizeDrag.pointerId) resizeDrag = null;
       });
 
-      resizeHandle.addEventListener("pointercancel", ()=>{
-        resizeDrag = null;
-      });
+      resizeHandle.addEventListener("pointercancel", ()=>{ resizeDrag = null; });
 
+      // --- Double-click reset rotation ---
       el.addEventListener("dblclick", ()=>{
         item.rot = 0;
         item.apply();
       });
 
+      // --- Touch gestures (mobile) ---
       el.addEventListener("touchstart", (e)=>{
         if(activeTouchItem && activeTouchItem !== item){
           e.preventDefault();
@@ -1201,27 +1058,22 @@
 
         e.preventDefault();
         e.stopPropagation();
-
         select(item);
 
         const rect = ws.getBoundingClientRect();
 
         if(e.touches.length === 1){
           const p = getTouchPoint(e.touches[0], rect);
-
           touchGesture = {
             mode: "move",
-            startX: p.x,
-            startY: p.y,
-            baseX: item.x,
-            baseY: item.y
+            startX: p.x, startY: p.y,
+            baseX: item.x, baseY: item.y
           };
         }
 
         if(e.touches.length >= 2){
           const p1 = getTouchPoint(e.touches[0], rect);
           const p2 = getTouchPoint(e.touches[1], rect);
-
           const centerX = (p1.x + p2.x) / 2;
           const centerY = (p1.y + p2.y) / 2;
 
@@ -1229,11 +1081,9 @@
             mode: "transform",
             startDistance: getDistance(p1, p2),
             startAngle: getAngle(p1, p2),
-            baseW: item.w,
-            baseH: item.h,
+            baseW: item.w, baseH: item.h,
             baseRot: item.rot,
-            baseX: item.x,
-            baseY: item.y,
+            baseX: item.x, baseY: item.y,
             baseCenterX: item.x + item.w / 2,
             baseCenterY: item.y + item.h / 2,
             startCenterX: centerX,
@@ -1252,8 +1102,6 @@
         const rect = ws.getBoundingClientRect();
 
         if(touchGesture.mode === "move" && e.touches.length === 1){
-          e.preventDefault();
-
           const p = getTouchPoint(e.touches[0], rect);
           const dx = p.x - touchGesture.startX;
           const dy = p.y - touchGesture.startY;
@@ -1261,27 +1109,21 @@
           const bounds = getMoveBounds(item.w, item.h);
           item.x = clamp(touchGesture.baseX + dx, bounds.minX, bounds.maxX);
           item.y = clamp(touchGesture.baseY + dy, bounds.minY, bounds.maxY);
-
           item.apply();
         }
 
         if(touchGesture.mode === "transform" && e.touches.length === 2){
-          e.preventDefault();
-
           const p1 = getTouchPoint(e.touches[0], rect);
           const p2 = getTouchPoint(e.touches[1], rect);
 
           const currentDistance = getDistance(p1, p2);
           const currentAngle = getAngle(p1, p2);
-
           const currentCenterX = (p1.x + p2.x) / 2;
           const currentCenterY = (p1.y + p2.y) / 2;
 
           const scaleRatio = currentDistance / touchGesture.startDistance;
           const newSize = clamp(touchGesture.baseW * scaleRatio, 30, getMaxItemSize());
-
           const angleDelta = currentAngle - touchGesture.startAngle;
-
           const moveCenterX = currentCenterX - touchGesture.startCenterX;
           const moveCenterY = currentCenterY - touchGesture.startCenterY;
 
@@ -1291,14 +1133,12 @@
 
           const newCenterX = touchGesture.baseCenterX + moveCenterX;
           const newCenterY = touchGesture.baseCenterY + moveCenterY;
-
           item.x = newCenterX - item.w / 2;
           item.y = newCenterY - item.h / 2;
 
           const bounds = getMoveBounds(item.w, item.h);
           item.x = clamp(item.x, bounds.minX, bounds.maxX);
           item.y = clamp(item.y, bounds.minY, bounds.maxY);
-
           item.apply();
         }
       }, { passive:false });
@@ -1320,20 +1160,16 @@
 
         if(e.touches.length === 1){
           const p = getTouchPoint(e.touches[0], rect);
-
           touchGesture = {
             mode: "move",
-            startX: p.x,
-            startY: p.y,
-            baseX: item.x,
-            baseY: item.y
+            startX: p.x, startY: p.y,
+            baseX: item.x, baseY: item.y
           };
         }
 
         if(e.touches.length === 2){
           const p1 = getTouchPoint(e.touches[0], rect);
           const p2 = getTouchPoint(e.touches[1], rect);
-
           const centerX = (p1.x + p2.x) / 2;
           const centerY = (p1.y + p2.y) / 2;
 
@@ -1341,11 +1177,9 @@
             mode: "transform",
             startDistance: getDistance(p1, p2),
             startAngle: getAngle(p1, p2),
-            baseW: item.w,
-            baseH: item.h,
+            baseW: item.w, baseH: item.h,
             baseRot: item.rot,
-            baseX: item.x,
-            baseY: item.y,
+            baseX: item.x, baseY: item.y,
             baseCenterX: item.x + item.w / 2,
             baseCenterY: item.y + item.h / 2,
             startCenterX: centerX,
@@ -1361,7 +1195,7 @@
           updateTouchLockState();
         }
       });
-      
+
       registerItem(item);
       ws.appendChild(el);
       select(item);
@@ -1378,9 +1212,7 @@
     }
 
     function getDistance(a, b){
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      return Math.hypot(dx, dy);
+      return Math.hypot(b.x - a.x, b.y - a.y);
     }
 
     function getAngle(a, b){
@@ -1393,31 +1225,20 @@
       if(isMobile){
         ws.style.width = "100%";
         ws.style.height = "";
-
         zoom = 1;
-        ui.zoom.value = "100";
-        ws.style.transformOrigin = "center center";
         ws.style.transform = "scale(1)";
         ws.parentElement.style.height = "";
       } else {
         ws.style.width = "";
         ws.style.height = "";
-
-        zoom = 1.5;
-        ui.zoom.value = "150";
-        ws.style.transformOrigin = "center center";
-        ws.style.transform = "scale(1.5)";
-
-        const baseH = ws.clientHeight;
-        const h = Math.max(baseH, baseH * zoom) + 40;
-        ws.parentElement.style.height = h + "px";
+        zoom = 1;
+        ws.style.transform = "scale(1)";
+        ws.parentElement.style.height = "";
       }
     }
 
     function getDefaultItemSize(){
-      if(window.innerWidth <= 900){
-        return 180;
-      }
+      if(window.innerWidth <= 900) return 180;
       return 340;
     }
 
@@ -1438,7 +1259,6 @@
           maxY: ws.clientHeight - itemH - pad
         };
       }
-
       return {
         minX: -200,
         minY: -200,
@@ -1447,8 +1267,9 @@
       };
     }
 
+    // FIX: Déselection — clic dans le vide déselectionne toujours
     ws.addEventListener("pointerdown", (e)=>{
-      if(e.target === ws && !selected) deselect();
+      if(e.target === ws) deselect();
     });
 
     ws.addEventListener("dragover", (e)=>{ e.preventDefault(); });
@@ -1461,20 +1282,12 @@
       addItem(libId, clamp(x, 0, ws.clientWidth-140), clamp(y, 0, ws.clientHeight-140));
     });
 
-    function bindInspector(){
-        ui.zoom.addEventListener("input", ()=>{
-        zoom = Number(ui.zoom.value) / 100;
-
-        ws.style.transformOrigin = "center center";
-        ws.style.transform = `scale(${zoom})`;
-
-        const baseH = ws.clientHeight; 
-        const h = Math.max(baseH, baseH * zoom) + 40;
-        ws.parentElement.style.height = h + "px";
-      });
-
+    function bindKeyboard(){
       window.addEventListener("keydown", (e)=>{
-        // supprimer uniquement sur Delete / Backspace
+        // FIX: Ne pas supprimer si on est dans un input/textarea
+        const tag = document.activeElement?.tagName;
+        if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
         if((e.key === "Delete" || e.key === "Backspace") && selected){
           e.preventDefault();
           const uid = selected.uid;
@@ -1485,7 +1298,7 @@
           return;
         }
 
-        if(e.ctrlKey && (e.key.toLowerCase()==="d")){
+        if(e.ctrlKey && e.key.toLowerCase() === "d"){
           e.preventDefault();
           if(selected){
             const clone = addItem(selected.libId, selected.x + 18, selected.y + 18);
@@ -1495,6 +1308,7 @@
             clone.flipY = selected.flipY;
             clone.name = selected.name;
             clone.apply();
+            clone.el.style.zIndex = String(++zCounter);
             const badge = clone.el.querySelector(".badge");
             if(badge) badge.textContent = clone.name || libById(clone.libId)?.label || "Item";
             showToast("Dupliqué");
@@ -1514,65 +1328,42 @@
           selected.el.style.zIndex = "1";
         }
       });
-
-      ws.addEventListener("wheel", (e)=>{
-        if(!e.ctrlKey) return;
-        e.preventDefault();
-        const current = Number(ui.zoom.value);
-        const next = clamp(current + (e.deltaY < 0 ? 5 : -5), 40, 140);
-        ui.zoom.value = String(next);
-        ui.zoom.dispatchEvent(new Event("input"));
-      }, { passive:false });
     }
 
-    function getAllItems(){
-      const els = Array.from(ws.querySelectorAll(".item"));
-      return els.map(el=>{
-        const libId = el.dataset.libId;
-        const x = parseFloat(el.style.left) || 0;
-        const y = parseFloat(el.style.top) || 0;
-        const w = parseFloat(el.style.width) || 140;
-        const h = parseFloat(el.style.height) || 140;
-        const rot = extractRot(el.style.transform);
-        const z = parseInt(el.style.zIndex || "1", 10);
-        const badge = el.querySelector(".badge");
-        const name = badge ? badge.textContent : (libById(libId)?.label || "");
-        return { libId, x, y, w, h, rot, z, name };
-      }).sort((a,b)=>a.z-b.z);
-    }
-
-    function extractRot(t){
-      const m = /rotate\(([-0-9.]+)deg\)/.exec(t || "");
-      return m ? parseFloat(m[1]) : 0;
-    }
+    // FIX: Export PNG lit directement le tableau ITEMS (avec flipX/flipY)
     async function exportPNG(){
-      const items = getAllItems();
+      const items = ITEMS.map(it => ({
+        libId: it.libId,
+        x: it.x,
+        y: it.y,
+        w: it.w,
+        h: it.h,
+        rot: it.rot,
+        flipX: it.flipX,
+        flipY: it.flipY,
+        z: parseInt(it.el.style.zIndex || "1", 10),
+        name: it.name
+      })).sort((a,b) => a.z - b.z);
+
       if(!items.length){ showToast("Rien à exporter"); return; }
 
-      const PAD = 80; // marge autour du dessin exporté
+      const PAD = 80;
 
       function boundsOfItem(it){
         const cx = it.x + it.w/2;
         const cy = it.y + it.h/2;
         const rad = ((it.rot || 0) * Math.PI) / 180;
-
         const cos = Math.cos(rad);
         const sin = Math.sin(rad);
-
-        // coins du rectangle centré, avant rotation
         const hw = it.w/2;
         const hh = it.h/2;
         const corners = [
-          {x:-hw, y:-hh},
-          {x: hw, y:-hh},
-          {x: hw, y: hh},
-          {x:-hw, y: hh},
+          {x:-hw, y:-hh}, {x: hw, y:-hh},
+          {x: hw, y: hh}, {x:-hw, y: hh},
         ];
 
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
         for(const p of corners){
-          // rotation autour du centre
           const rx = p.x * cos - p.y * sin;
           const ry = p.x * sin + p.y * cos;
           const ax = cx + rx;
@@ -1585,7 +1376,6 @@
         return { minX, minY, maxX, maxY };
       }
 
-      // 1) enveloppe globale
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for(const it of items){
         const b = boundsOfItem(it);
@@ -1605,17 +1395,11 @@
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(W * EXPORT_SCALE);
       canvas.height = Math.round(H * EXPORT_SCALE);
-      canvas.style.width = W + "px";
-      canvas.style.height = H + "px";
 
       const ctx = canvas.getContext("2d", { alpha: true });
-
       ctx.scale(EXPORT_SCALE, EXPORT_SCALE);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
-
-      // fond transparent, ou blanc si tu veux
-      // ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0,W,H);
 
       if(!exportPNG._cache) exportPNG._cache = new Map();
       const cache = exportPNG._cache;
@@ -1633,7 +1417,6 @@
         return p;
       }
 
-      // 2) dessiner en décalant tout de (-minX, -minY)
       for(const it of items){
         const lib = libById(it.libId);
         if(!lib) continue;
@@ -1647,10 +1430,8 @@
         const cx = (it.x + it.w/2) - minX;
         const cy = (it.y + it.h/2) - minY;
 
-        const flipX = !!it.flipX;
-        const flipY = !!it.flipY;
-        const sx = flipX ? -1 : 1;
-        const sy = flipY ? -1 : 1;
+        const sx = it.flipX ? -1 : 1;
+        const sy = it.flipY ? -1 : 1;
 
         ctx.translate(cx, cy);
         ctx.scale(sx, sy);
@@ -1663,7 +1444,6 @@
         const dh = ih * scale;
 
         ctx.drawImage(im, -dw/2, -dh/2, dw, dh);
-
         ctx.restore();
       }
 
@@ -1681,108 +1461,51 @@
       }, "image/png");
     }
 
-    function exportJSON(){
-      const payload = {
-        v: 1,
-        canvas: { w: ws.clientWidth, h: ws.clientHeight },
-        items: getAllItems()
-      };
-      downloadText(JSON.stringify(payload, null, 2), "flash-compo.json", "application/json");
-      showToast("JSON exporté");
-    }
-
-    function importJSON(){
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "application/json";
-      input.onchange = async ()=>{
-        const file = input.files[0];
-        if(!file) return;
-        const text = await file.text();
-        let data;
-        try { data = JSON.parse(text); } catch { showToast("JSON invalide"); return; }
-
-        ws.querySelectorAll(".item").forEach(el=>el.remove());
-        ITEMS.length = 0;
-        selected = null;
-
-        if(data?.items?.length){
-          for(const it of data.items){
-            const obj = addItem(it.libId, it.x, it.y);
-            obj.w = it.w; obj.h = it.h;
-            obj.rot = it.rot;
-            obj.apply();
-            obj.el.style.zIndex = String(it.z || (++zCounter));
-            obj.name = it.name || libById(it.libId)?.label || "";
-            const badge = obj.el.querySelector(".badge");
-            if(badge) badge.textContent = obj.name;
-          }
-          showToast("JSON importé");
-        }
-      };
-      input.click();
-    }
-
-    function downloadText(text, filename, mime){
-      const blob = new Blob([text], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url), 800);
-    }
-
-
-   document.getElementById("btnClear").addEventListener("click", ()=>{
-     if(!selected){
-       showToast("Aucun élément sélectionné");
-       return;
-     }
-
-     const uid = selected.uid;
-     selected.el.remove();
-     deselect();
-     removeItemByUid(uid);
-
-     showToast("Élément supprimé");
-   });
+    // --- Boutons desktop ---
+    document.getElementById("btnClear").addEventListener("click", ()=>{
+      if(!selected){
+        showToast("Aucun élément sélectionné");
+        return;
+      }
+      const uid = selected.uid;
+      selected.el.remove();
+      deselect();
+      removeItemByUid(uid);
+      showToast("Élément supprimé");
+    });
 
     document.getElementById("btnCenter").addEventListener("click", ()=>{
-      if(!selected) return;
+      if(!selected){ showToast("Aucun élément sélectionné"); return; }
       selected.x = (ws.clientWidth - selected.w)/2;
       selected.y = (ws.clientHeight - selected.h)/2;
       selected.apply();
     });
 
     document.getElementById("btnToFront").addEventListener("click", ()=>{
-      if(!selected) return;
+      if(!selected){ showToast("Aucun élément sélectionné"); return; }
       selected.el.style.zIndex = String(++zCounter);
     });
 
     document.getElementById("btnToBack").addEventListener("click", ()=>{
-      if(!selected) return;
+      if(!selected){ showToast("Aucun élément sélectionné"); return; }
       selected.el.style.zIndex = "1";
     });
+
     document.getElementById("btnFlipH").addEventListener("click", ()=>{
-      if(!selected) return;
+      if(!selected){ showToast("Aucun élément sélectionné"); return; }
       selected.flipX = !selected.flipX;
       selected.apply();
     });
 
     document.getElementById("btnFlipV").addEventListener("click", ()=>{
-      if(!selected) return;
+      if(!selected){ showToast("Aucun élément sélectionné"); return; }
       selected.flipY = !selected.flipY;
       selected.apply();
     });
 
     document.getElementById("btnExportPNG").addEventListener("click", exportPNG);
 
-    resizeWorkspaceForMobile();
-    window.addEventListener("resize", resizeWorkspaceForMobile);
-
+    // --- Mobile FAB ---
     function bindMobileQuickActions(){
       const toolsBtn = document.getElementById("btnMobileTools");
       const toolsPanel = document.getElementById("mobileToolsPanel");
@@ -1795,7 +1518,6 @@
       function bindMobileAction(mobileId, desktopId){
         const mobileBtn = document.getElementById(mobileId);
         const desktopBtn = document.getElementById(desktopId);
-
         if(!mobileBtn || !desktopBtn) return;
 
         mobileBtn.addEventListener("click", (e)=>{
@@ -1835,8 +1557,11 @@
       bindMobileAction("btnMobileFront", "btnToFront");
     }
 
+    // --- Init ---
+    resizeWorkspaceForMobile();
+    window.addEventListener("resize", resizeWorkspaceForMobile);
     renderPalette();
-    bindInspector();
+    bindKeyboard();
     bindMobileQuickActions();
   </script>
 </body>
