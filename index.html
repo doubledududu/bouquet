@@ -20,6 +20,8 @@
     header .left { display:flex; gap:12px; align-items:center; }
     header .title { font-weight:900; color:#d8c1c7;}
     header .hint { color:#000000; font-size:13px;}
+    header .hint.desktop-hint {}
+    header .hint.mobile-hint { display:none; }
     header .btns {
       display:flex;
       gap:8px;
@@ -224,6 +226,7 @@
       background:#10131c; border:1px solid var(--line); color:var(--ink);
       padding:10px 12px; border-radius:12px; font-size:13px; opacity:0; pointer-events:none;
       transition: opacity .18s ease;
+      z-index:200;
     }
     .toast.show { opacity:1; }
 
@@ -268,8 +271,87 @@
       display:none;
     }
 
+    /* --- Modale export preview --- */
+    .exportModal{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:150;
+      background:rgba(0,0,0,.7);
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .exportModal.open{ display:flex; }
+
+    .exportModal-inner{
+      background:var(--bg);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px;
+      max-width:520px;
+      width:100%;
+      max-height:90vh;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:center;
+    }
+
+    .exportModal-inner h2{
+      margin:0;
+      font-size:16px;
+      color:var(--ink);
+      font-weight:700;
+    }
+
+    .exportModal-preview{
+      width:100%;
+      max-height:50vh;
+      object-fit:contain;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background: repeating-conic-gradient(from 90deg, #ccc 0 25%, #fff 0 50%) 0 / 16px 16px;
+    }
+
+    .exportModal-btns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    .exportModal-btns button{
+      padding:10px 18px;
+      min-height:42px;
+      font-size:14px;
+      font-weight:600;
+      border-radius:12px;
+    }
+
+    .exportModal-download{
+      background:#dff1e3 !important;
+      color:#1f2a20 !important;
+      border-color: rgba(122,162,255,.6) !important;
+    }
+
+    .exportModal-share{
+      background:#d8c1c7 !important;
+      color:#111 !important;
+    }
+
+    .exportModal-close{
+      background:transparent !important;
+      color:var(--ink) !important;
+      border-color:var(--line) !important;
+    }
+
     /* ===== Desktop ===== */
     @media (min-width: 901px) {
+      header .hint.mobile-hint { display:none; }
+      header .hint.desktop-hint { display:block; }
+
       header {
         justify-content:flex-start;
       }
@@ -319,6 +401,9 @@
       .resizeHandle {
         display: none !important;
       }
+
+      header .hint.desktop-hint { display:none; }
+      header .hint.mobile-hint { display:block; }
 
       header {
         align-items: flex-start;
@@ -621,9 +706,15 @@
   <header>
     <div class="left">
       <div class="title">Flash bouquet builder</div>
-      <div class="hint">Clique pour ajouter. Glisse pour déplacer. <span class="kbd">Suppr</span> efface. <span class="kbd">Ctrl+D</span> duplique.</div>
+      <div class="hint desktop-hint">Clique pour ajouter. Glisse pour déplacer. <span class="kbd">Suppr</span> efface. <span class="kbd">Ctrl+D</span> duplique. <span class="kbd">Ctrl+Z</span> annule.</div>
+      <div class="hint mobile-hint">Touche un flash pour l'ajouter. Glisse pour déplacer. Deux doigts pour pivoter et redimensionner.</div>
     </div>
     <div class="btns">
+      <button class="toolBtn" id="btnUndo">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773849937/cancel_wox4da.png" alt="">
+        <span>Annuler</span>
+      </button>
+
       <button class="toolBtn" id="btnClear">
         <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
         <span>Effacer</span>
@@ -680,6 +771,7 @@
 
   </main>
 
+  <!-- Mobile FABs -->
   <div class="mobileFabWrap">
     <button class="mobileExportFab" id="btnMobileExport">
       <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334751/save_woziav.png" alt="">
@@ -687,6 +779,11 @@
     </button>
 
     <div class="mobileToolsPanel" id="mobileToolsPanel">
+      <button class="mobileActionBtn" id="btnMobileUndo">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773849937/cancel_wox4da.png" alt="">
+        <span>Annuler</span>
+      </button>
+
       <button class="mobileActionBtn" id="btnMobileClear">
         <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
         <span>Effacer</span>
@@ -721,6 +818,19 @@
     <button class="mobileToolsFab" id="btnMobileTools">
       <span>Outils</span>
     </button>
+  </div>
+
+  <!-- Export preview modal -->
+  <div class="exportModal" id="exportModal">
+    <div class="exportModal-inner">
+      <h2>Aperçu de ta composition</h2>
+      <img class="exportModal-preview" id="exportPreview" alt="Aperçu export" />
+      <div class="exportModal-btns">
+        <button class="exportModal-download" id="exportDownload">Télécharger</button>
+        <button class="exportModal-share" id="exportShare" style="display:none">Partager</button>
+        <button class="exportModal-close" id="exportClose">Fermer</button>
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -763,6 +873,60 @@
     let zoom = 1;
     let activeTouchItem = null;
 
+    // ===== Undo system =====
+    const undoStack = [];
+    const MAX_UNDO = 40;
+
+    function captureState(){
+      const state = ITEMS.map(it => ({
+        uid: it.uid,
+        libId: it.libId,
+        x: it.x, y: it.y,
+        w: it.w, h: it.h,
+        rot: it.rot,
+        flipX: it.flipX,
+        flipY: it.flipY,
+        name: it.name,
+        z: parseInt(it.el.style.zIndex || "1", 10)
+      }));
+      return JSON.stringify(state);
+    }
+
+    function pushUndo(){
+      undoStack.push(captureState());
+      if(undoStack.length > MAX_UNDO) undoStack.shift();
+    }
+
+    function performUndo(){
+      if(!undoStack.length){ showToast("Rien à annuler"); return; }
+
+      const stateStr = undoStack.pop();
+      const state = JSON.parse(stateStr);
+
+      // Supprimer tous les éléments actuels
+      ws.querySelectorAll(".item").forEach(el => el.remove());
+      ITEMS.length = 0;
+      selected = null;
+
+      // Recréer depuis le snapshot
+      for(const s of state){
+        const obj = addItem(s.libId, s.x, s.y, true); // true = skip undo push
+        if(!obj) continue;
+        obj.w = s.w; obj.h = s.h;
+        obj.rot = s.rot;
+        obj.flipX = s.flipX;
+        obj.flipY = s.flipY;
+        obj.name = s.name;
+        obj.apply();
+        obj.el.style.zIndex = String(s.z);
+        const badge = obj.el.querySelector(".badge");
+        if(badge) badge.textContent = obj.name;
+      }
+      deselect();
+      showToast("Annulé");
+    }
+
+    // ===== Core =====
     function updateTouchLockState(){
       const items = ws.querySelectorAll(".item");
       items.forEach(el => el.classList.remove("touch-blocked"));
@@ -789,10 +953,6 @@
     function removeItemByUid(uid){
       const idx = ITEMS.findIndex(it => it.uid === uid);
       if(idx >= 0) ITEMS.splice(idx, 1);
-    }
-
-    function findItemByUid(uid){
-      return ITEMS.find(it => it.uid === uid);
     }
 
     function showToast(msg){
@@ -822,6 +982,7 @@
         card.appendChild(label);
 
         card.addEventListener("click", ()=>{
+          pushUndo();
           const defaultSize = getDefaultItemSize();
           const centerX = (ws.clientWidth / 2) - (defaultSize / 2);
           const centerY = (ws.clientHeight / 2) - (defaultSize / 2);
@@ -852,7 +1013,7 @@
 
     function libById(id){ return LIB.find(x=>x.id===id); }
 
-    function addItem(libId, x, y){
+    function addItem(libId, x, y, skipUndo){
       const src = libById(libId);
       if(!src) return;
 
@@ -880,7 +1041,7 @@
       resizeHandle.title = "Redimensionner";
 
       const img = document.createElement("img");
-      img.crossOrigin = "anonymous"; // FIX: CORS pour export canvas
+      img.crossOrigin = "anonymous";
       img.src = src.src;
       img.alt = src.label;
 
@@ -916,12 +1077,12 @@
       let resizeDrag = null;
 
       el.addEventListener("pointerdown", (e)=>{
-        // Ne pas capturer si c'est un handle
         if(e.target === rotateHandle || e.target === resizeHandle) return;
-
         e.preventDefault();
         select(item);
         el.setPointerCapture(e.pointerId);
+
+        pushUndo();
 
         const rect = ws.getBoundingClientRect();
         const startX = (e.clientX - rect.left) / zoom;
@@ -930,8 +1091,7 @@
         drag = {
           mode: "move",
           startX, startY,
-          baseX: item.x, baseY: item.y,
-          baseW: item.w, baseH: item.h
+          baseX: item.x, baseY: item.y
         };
       });
 
@@ -943,23 +1103,20 @@
         const dx = cx - drag.startX;
         const dy = cy - drag.startY;
 
-        if(drag.mode === "move"){
-          const bounds = getMoveBounds(item.w, item.h);
-          item.x = clamp(drag.baseX + dx, bounds.minX, bounds.maxX);
-          item.y = clamp(drag.baseY + dy, bounds.minY, bounds.maxY);
-        }
+        const bounds = getMoveBounds(item.w, item.h);
+        item.x = clamp(drag.baseX + dx, bounds.minX, bounds.maxX);
+        item.y = clamp(drag.baseY + dy, bounds.minY, bounds.maxY);
         item.apply();
       });
 
-      el.addEventListener("pointerup", ()=>{
-        drag = null;
-      });
+      el.addEventListener("pointerup", ()=>{ drag = null; });
 
       // --- Rotate handle ---
       rotateHandle.addEventListener("pointerdown", (e)=>{
         e.preventDefault();
         e.stopPropagation();
         select(item);
+        pushUndo();
 
         const rect = ws.getBoundingClientRect();
         const centerX = item.x + item.w / 2;
@@ -970,8 +1127,7 @@
         rotateDrag = {
           startRot: item.rot,
           startAngle: Math.atan2(pointerY - centerY, pointerX - centerX) * 180 / Math.PI,
-          centerX,
-          centerY,
+          centerX, centerY,
           pointerId: e.pointerId
         };
         rotateHandle.setPointerCapture(e.pointerId);
@@ -992,7 +1148,6 @@
       rotateHandle.addEventListener("pointerup", (e)=>{
         if(rotateDrag && e.pointerId === rotateDrag.pointerId) rotateDrag = null;
       });
-
       rotateHandle.addEventListener("pointercancel", ()=>{ rotateDrag = null; });
 
       // --- Resize handle ---
@@ -1000,13 +1155,13 @@
         e.preventDefault();
         e.stopPropagation();
         select(item);
+        pushUndo();
 
         const rect = ws.getBoundingClientRect();
         resizeDrag = {
           startX: (e.clientX - rect.left) / zoom,
           startY: (e.clientY - rect.top) / zoom,
-          baseW: item.w,
-          baseH: item.h,
+          baseW: item.w, baseH: item.h,
           pointerId: e.pointerId
         };
         resizeHandle.setPointerCapture(e.pointerId);
@@ -1036,11 +1191,11 @@
       resizeHandle.addEventListener("pointerup", (e)=>{
         if(resizeDrag && e.pointerId === resizeDrag.pointerId) resizeDrag = null;
       });
-
       resizeHandle.addEventListener("pointercancel", ()=>{ resizeDrag = null; });
 
       // --- Double-click reset rotation ---
       el.addEventListener("dblclick", ()=>{
+        pushUndo();
         item.rot = 0;
         item.apply();
       });
@@ -1059,6 +1214,7 @@
         e.preventDefault();
         e.stopPropagation();
         select(item);
+        pushUndo();
 
         const rect = ws.getBoundingClientRect();
 
@@ -1221,7 +1377,6 @@
 
     function resizeWorkspaceForMobile(){
       const isMobile = window.innerWidth <= 900;
-
       if(isMobile){
         ws.style.width = "100%";
         ws.style.height = "";
@@ -1253,21 +1408,19 @@
       if(window.innerWidth <= 900){
         const pad = 10;
         return {
-          minX: pad,
-          minY: pad,
+          minX: pad, minY: pad,
           maxX: ws.clientWidth - itemW - pad,
           maxY: ws.clientHeight - itemH - pad
         };
       }
       return {
-        minX: -200,
-        minY: -200,
+        minX: -200, minY: -200,
         maxX: ws.clientWidth - 20,
         maxY: ws.clientHeight - 20
       };
     }
 
-    // FIX: Déselection — clic dans le vide déselectionne toujours
+    // Déselection sur clic dans le vide
     ws.addEventListener("pointerdown", (e)=>{
       if(e.target === ws) deselect();
     });
@@ -1275,6 +1428,7 @@
     ws.addEventListener("dragover", (e)=>{ e.preventDefault(); });
     ws.addEventListener("drop", (e)=>{
       e.preventDefault();
+      pushUndo();
       const libId = e.dataTransfer.getData("text/plain");
       const rect = ws.getBoundingClientRect();
       const x = (e.clientX - rect.left) / zoom - 70;
@@ -1282,14 +1436,22 @@
       addItem(libId, clamp(x, 0, ws.clientWidth-140), clamp(y, 0, ws.clientHeight-140));
     });
 
+    // ===== Keyboard =====
     function bindKeyboard(){
       window.addEventListener("keydown", (e)=>{
-        // FIX: Ne pas supprimer si on est dans un input/textarea
         const tag = document.activeElement?.tagName;
         if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
 
+        // Ctrl+Z = undo
+        if(e.ctrlKey && e.key.toLowerCase() === "z"){
+          e.preventDefault();
+          performUndo();
+          return;
+        }
+
         if((e.key === "Delete" || e.key === "Backspace") && selected){
           e.preventDefault();
+          pushUndo();
           const uid = selected.uid;
           selected.el.remove();
           deselect();
@@ -1301,7 +1463,8 @@
         if(e.ctrlKey && e.key.toLowerCase() === "d"){
           e.preventDefault();
           if(selected){
-            const clone = addItem(selected.libId, selected.x + 18, selected.y + 18);
+            pushUndo();
+            const clone = addItem(selected.libId, selected.x + 18, selected.y + 18, true);
             clone.w = selected.w; clone.h = selected.h;
             clone.rot = selected.rot;
             clone.flipX = selected.flipX;
@@ -1320,24 +1483,26 @@
 
         if(e.ctrlKey && (e.key === "]" || e.key === "}")){
           e.preventDefault();
+          pushUndo();
           selected.el.style.zIndex = String(++zCounter);
         }
 
         if(e.ctrlKey && (e.key === "[" || e.key === "{")){
           e.preventDefault();
+          pushUndo();
           selected.el.style.zIndex = "1";
         }
       });
     }
 
-    // FIX: Export PNG lit directement le tableau ITEMS (avec flipX/flipY)
+    // ===== Export PNG → preview modal =====
+    let lastExportBlob = null;
+
     async function exportPNG(){
       const items = ITEMS.map(it => ({
         libId: it.libId,
-        x: it.x,
-        y: it.y,
-        w: it.w,
-        h: it.h,
+        x: it.x, y: it.y,
+        w: it.w, h: it.h,
         rot: it.rot,
         flipX: it.flipX,
         flipY: it.flipY,
@@ -1361,7 +1526,6 @@
           {x:-hw, y:-hh}, {x: hw, y:-hh},
           {x: hw, y: hh}, {x:-hw, y: hh},
         ];
-
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         for(const p of corners){
           const rx = p.x * cos - p.y * sin;
@@ -1389,8 +1553,7 @@
 
       const W = Math.max(1, Math.ceil(maxX - minX));
       const H = Math.max(1, Math.ceil(maxY - minY));
-
-      const EXPORT_SCALE = Math.max(3, Math.ceil(window.devicePixelRatio || 1));
+      const EXPORT_SCALE = Math.max(2, Math.ceil(window.devicePixelRatio || 1));
 
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(W * EXPORT_SCALE);
@@ -1420,16 +1583,13 @@
       for(const it of items){
         const lib = libById(it.libId);
         if(!lib) continue;
-
         let im;
         try { im = await loadImage(lib.src); }
         catch(e){ console.warn(e); continue; }
 
         ctx.save();
-
         const cx = (it.x + it.w/2) - minX;
         const cy = (it.y + it.h/2) - minY;
-
         const sx = it.flipX ? -1 : 1;
         const sy = it.flipY ? -1 : 1;
 
@@ -1449,24 +1609,94 @@
 
       canvas.toBlob((blob)=>{
         if(!blob) { showToast("Export PNG impossible"); return; }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "flash-compo.png";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(()=>URL.revokeObjectURL(url), 1000);
-        showToast("PNG exporté");
+        lastExportBlob = blob;
+        showExportModal(blob);
       }, "image/png");
     }
 
-    // --- Boutons desktop ---
+    // ===== Export modal =====
+    function showExportModal(blob){
+      const modal = document.getElementById("exportModal");
+      const preview = document.getElementById("exportPreview");
+      const shareBtn = document.getElementById("exportShare");
+
+      const url = URL.createObjectURL(blob);
+      preview.src = url;
+
+      // Afficher le bouton Partager si Web Share API disponible
+      if(navigator.share && navigator.canShare){
+        shareBtn.style.display = "";
+      } else {
+        shareBtn.style.display = "none";
+      }
+
+      modal.classList.add("open");
+    }
+
+    function closeExportModal(){
+      const modal = document.getElementById("exportModal");
+      const preview = document.getElementById("exportPreview");
+      modal.classList.remove("open");
+
+      // Cleanup object URL
+      if(preview.src.startsWith("blob:")){
+        URL.revokeObjectURL(preview.src);
+      }
+      preview.src = "";
+    }
+
+    document.getElementById("exportClose").addEventListener("click", closeExportModal);
+
+    // Fermer en cliquant sur le fond
+    document.getElementById("exportModal").addEventListener("click", (e)=>{
+      if(e.target === e.currentTarget) closeExportModal();
+    });
+
+    document.getElementById("exportDownload").addEventListener("click", ()=>{
+      if(!lastExportBlob) return;
+      const url = URL.createObjectURL(lastExportBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "flash-compo.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
+      showToast("PNG téléchargé");
+    });
+
+    document.getElementById("exportShare").addEventListener("click", async ()=>{
+      if(!lastExportBlob) return;
+
+      const file = new File([lastExportBlob], "flash-compo.png", { type: "image/png" });
+
+      try {
+        if(navigator.canShare && navigator.canShare({ files: [file] })){
+          await navigator.share({
+            title: "Ma composition flash",
+            text: "Voici ma composition de bouquet !",
+            files: [file]
+          });
+          showToast("Partagé !");
+        } else {
+          showToast("Partage non supporté");
+        }
+      } catch(err){
+        if(err.name !== "AbortError"){
+          showToast("Partage annulé");
+        }
+      }
+    });
+
+    // ===== Boutons desktop =====
+    document.getElementById("btnUndo").addEventListener("click", performUndo);
+
     document.getElementById("btnClear").addEventListener("click", ()=>{
       if(!selected){
         showToast("Aucun élément sélectionné");
         return;
       }
+      pushUndo();
       const uid = selected.uid;
       selected.el.remove();
       deselect();
@@ -1476,6 +1706,7 @@
 
     document.getElementById("btnCenter").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
+      pushUndo();
       selected.x = (ws.clientWidth - selected.w)/2;
       selected.y = (ws.clientHeight - selected.h)/2;
       selected.apply();
@@ -1483,29 +1714,33 @@
 
     document.getElementById("btnToFront").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
+      pushUndo();
       selected.el.style.zIndex = String(++zCounter);
     });
 
     document.getElementById("btnToBack").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
+      pushUndo();
       selected.el.style.zIndex = "1";
     });
 
     document.getElementById("btnFlipH").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
+      pushUndo();
       selected.flipX = !selected.flipX;
       selected.apply();
     });
 
     document.getElementById("btnFlipV").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
+      pushUndo();
       selected.flipY = !selected.flipY;
       selected.apply();
     });
 
     document.getElementById("btnExportPNG").addEventListener("click", exportPNG);
 
-    // --- Mobile FAB ---
+    // ===== Mobile FABs =====
     function bindMobileQuickActions(){
       const toolsBtn = document.getElementById("btnMobileTools");
       const toolsPanel = document.getElementById("mobileToolsPanel");
@@ -1549,6 +1784,7 @@
         });
       }
 
+      bindMobileAction("btnMobileUndo", "btnUndo");
       bindMobileAction("btnMobileClear", "btnClear");
       bindMobileAction("btnMobileCenter", "btnCenter");
       bindMobileAction("btnMobileFlipH", "btnFlipH");
@@ -1557,7 +1793,7 @@
       bindMobileAction("btnMobileFront", "btnToFront");
     }
 
-    // --- Init ---
+    // ===== Init =====
     resizeWorkspaceForMobile();
     window.addEventListener("resize", resizeWorkspaceForMobile);
     renderPalette();
