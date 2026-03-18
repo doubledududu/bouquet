@@ -291,7 +291,9 @@
     .mobileToolsPanel,
     .mobileToolsFab,
     .mobileExportFab,
-    .mobileActionBtn{
+    .mobileActionBtn,
+    .mobileQuickBar,
+    .mobileQuickBtn{
       display:none;
     }
 
@@ -637,6 +639,36 @@
         font-weight:700;
       }
 
+      .mobileQuickBar{
+        display:flex;
+        gap:8px;
+        justify-content:flex-end;
+        margin-bottom:8px;
+        pointer-events:auto;
+      }
+
+      .mobileQuickBtn{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        width:42px;
+        height:42px;
+        border:1px solid var(--line);
+        border-radius:12px;
+        background:#d8c1c7;
+        color:#111111;
+        box-shadow:0 4px 12px rgba(0,0,0,.15);
+        pointer-events:auto;
+        padding:0;
+      }
+
+      .mobileQuickBtn img{
+        width:18px;
+        height:18px;
+        object-fit:contain;
+        pointer-events:none;
+      }
+
       .mobileExportFab{
         position:fixed;
         left:12px;
@@ -747,6 +779,11 @@
         <span>Effacer</span>
       </button>
 
+      <button class="toolBtn" id="btnClearAll">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
+        <span>Tout effacer</span>
+      </button>
+
       <button class="toolBtn" id="btnCenter">
         <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/center_fmldze.png" alt="">
         <span>Centrer</span>
@@ -810,15 +847,29 @@
       <span>Exporter</span>
     </button>
 
-    <div class="mobileToolsPanel" id="mobileToolsPanel">
-      <button class="mobileActionBtn" id="btnMobileUndo">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773849937/cancel_wox4da.png" alt="">
-        <span>Annuler</span>
+    <!-- Quick actions toujours visibles -->
+    <div class="mobileQuickBar">
+      <button class="mobileQuickBtn" id="btnMobileQuickUndo" title="Annuler">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773849937/cancel_wox4da.png" alt="Annuler">
       </button>
+      <button class="mobileQuickBtn" id="btnMobileQuickBack" title="Reculer">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334749/backward_oxnwqt.png" alt="Reculer">
+      </button>
+      <button class="mobileQuickBtn" id="btnMobileQuickFront" title="Avancer">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/forward_mmncyj.png" alt="Avancer">
+      </button>
+    </div>
 
+    <!-- Panel déroulant -->
+    <div class="mobileToolsPanel" id="mobileToolsPanel">
       <button class="mobileActionBtn" id="btnMobileClear">
         <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
         <span>Effacer</span>
+      </button>
+
+      <button class="mobileActionBtn" id="btnMobileClearAll">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
+        <span>Tout effacer</span>
       </button>
 
       <button class="mobileActionBtn" id="btnMobileCenter">
@@ -835,28 +886,10 @@
         <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334752/flip_V_q3v1x1.png" alt="">
         <span>Miroir V</span>
       </button>
-
-      <button class="mobileActionBtn" id="btnMobileRotL">
-        <span>↶ -15°</span>
-      </button>
-
-      <button class="mobileActionBtn" id="btnMobileRotR">
-        <span>↷ +15°</span>
-      </button>
-
-      <button class="mobileActionBtn" id="btnMobileBack">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334749/backward_oxnwqt.png" alt="">
-        <span>Reculer</span>
-      </button>
-
-      <button class="mobileActionBtn" id="btnMobileFront">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/forward_mmncyj.png" alt="">
-        <span>Avancer</span>
-      </button>
     </div>
 
     <button class="mobileToolsFab" id="btnMobileTools">
-      <span>Outils</span>
+      <span>+ d'outils</span>
     </button>
   </div>
 
@@ -989,11 +1022,13 @@
       item.uid = "i" + (uidCounter++);
       item.el.dataset.uid = item.uid;
       ITEMS.push(item);
+      updatePlaceholder();
     }
 
     function removeItemByUid(uid){
       const idx = ITEMS.findIndex(it => it.uid === uid);
       if(idx >= 0) ITEMS.splice(idx, 1);
+      updatePlaceholder();
     }
 
     function showToast(msg){
@@ -1123,8 +1158,6 @@
         select(item);
         el.setPointerCapture(e.pointerId);
 
-        pushUndo();
-
         const rect = ws.getBoundingClientRect();
         const startX = (e.clientX - rect.left) / zoom;
         const startY = (e.clientY - rect.top) / zoom;
@@ -1132,7 +1165,8 @@
         drag = {
           mode: "move",
           startX, startY,
-          baseX: item.x, baseY: item.y
+          baseX: item.x, baseY: item.y,
+          undoPushed: false
         };
       });
 
@@ -1143,6 +1177,12 @@
         const cy = (e.clientY - rect.top) / zoom;
         const dx = cx - drag.startX;
         const dy = cy - drag.startY;
+
+        // Push undo seulement au premier vrai mouvement (>3px)
+        if(!drag.undoPushed && (Math.abs(dx) > 3 || Math.abs(dy) > 3)){
+          pushUndo();
+          drag.undoPushed = true;
+        }
 
         const bounds = getMoveBounds(item.w, item.h);
         item.x = clamp(drag.baseX + dx, bounds.minX, bounds.maxX);
@@ -1157,7 +1197,6 @@
         e.preventDefault();
         e.stopPropagation();
         select(item);
-        pushUndo();
 
         const rect = ws.getBoundingClientRect();
         const centerX = item.x + item.w / 2;
@@ -1169,7 +1208,8 @@
           startRot: item.rot,
           startAngle: Math.atan2(pointerY - centerY, pointerX - centerX) * 180 / Math.PI,
           centerX, centerY,
-          pointerId: e.pointerId
+          pointerId: e.pointerId,
+          undoPushed: false
         };
         rotateHandle.setPointerCapture(e.pointerId);
       });
@@ -1182,7 +1222,15 @@
         const pointerX = (e.clientX - rect.left) / zoom;
         const pointerY = (e.clientY - rect.top) / zoom;
         const currentAngle = Math.atan2(pointerY - rotateDrag.centerY, pointerX - rotateDrag.centerX) * 180 / Math.PI;
-        item.rot = rotateDrag.startRot + (currentAngle - rotateDrag.startAngle);
+        let delta = currentAngle - rotateDrag.startAngle;
+        if(item.flipX !== item.flipY) delta = -delta;
+
+        if(!rotateDrag.undoPushed && Math.abs(delta) > 1){
+          pushUndo();
+          rotateDrag.undoPushed = true;
+        }
+
+        item.rot = rotateDrag.startRot + delta;
         item.apply();
       });
 
@@ -1196,14 +1244,14 @@
         e.preventDefault();
         e.stopPropagation();
         select(item);
-        pushUndo();
 
         const rect = ws.getBoundingClientRect();
         resizeDrag = {
           startX: (e.clientX - rect.left) / zoom,
           startY: (e.clientY - rect.top) / zoom,
           baseW: item.w, baseH: item.h,
-          pointerId: e.pointerId
+          pointerId: e.pointerId,
+          undoPushed: false
         };
         resizeHandle.setPointerCapture(e.pointerId);
       });
@@ -1218,6 +1266,12 @@
         const dx = currentX - resizeDrag.startX;
         const dy = currentY - resizeDrag.startY;
         const d = Math.max(dx, dy);
+
+        if(!resizeDrag.undoPushed && Math.abs(d) > 3){
+          pushUndo();
+          resizeDrag.undoPushed = true;
+        }
+
         const newSize = clamp(resizeDrag.baseW + d, 30, getMaxItemSize());
 
         item.w = newSize;
@@ -1255,7 +1309,6 @@
         e.preventDefault();
         e.stopPropagation();
         select(item);
-        pushUndo();
 
         const rect = ws.getBoundingClientRect();
 
@@ -1264,7 +1317,8 @@
           touchGesture = {
             mode: "move",
             startX: p.x, startY: p.y,
-            baseX: item.x, baseY: item.y
+            baseX: item.x, baseY: item.y,
+            undoPushed: false
           };
         }
 
@@ -1284,7 +1338,8 @@
             baseCenterX: item.x + item.w / 2,
             baseCenterY: item.y + item.h / 2,
             startCenterX: centerX,
-            startCenterY: centerY
+            startCenterY: centerY,
+            undoPushed: false
           };
         }
       }, { passive:false });
@@ -1302,6 +1357,11 @@
           const p = getTouchPoint(e.touches[0], rect);
           const dx = p.x - touchGesture.startX;
           const dy = p.y - touchGesture.startY;
+
+          if(!touchGesture.undoPushed && (Math.abs(dx) > 3 || Math.abs(dy) > 3)){
+            pushUndo();
+            touchGesture.undoPushed = true;
+          }
 
           const bounds = getMoveBounds(item.w, item.h);
           item.x = clamp(touchGesture.baseX + dx, bounds.minX, bounds.maxX);
@@ -1323,6 +1383,11 @@
           const angleDelta = currentAngle - touchGesture.startAngle;
           const moveCenterX = currentCenterX - touchGesture.startCenterX;
           const moveCenterY = currentCenterY - touchGesture.startCenterY;
+
+          if(!touchGesture.undoPushed && (Math.abs(scaleRatio - 1) > 0.03 || Math.abs(angleDelta) > 1)){
+            pushUndo();
+            touchGesture.undoPushed = true;
+          }
 
           item.w = newSize;
           item.h = newSize;
@@ -1781,6 +1846,17 @@
 
     document.getElementById("btnExportPNG").addEventListener("click", exportPNG);
 
+    document.getElementById("btnClearAll").addEventListener("click", ()=>{
+      if(!ITEMS.length){ showToast("Rien à effacer"); return; }
+      if(!confirm("Effacer tous les éléments ?")) return;
+      pushUndo();
+      ws.querySelectorAll(".item").forEach(el => el.remove());
+      ITEMS.length = 0;
+      deselect();
+      updatePlaceholder();
+      showToast("Tout effacé");
+    });
+
     // ===== Mobile FABs =====
     function bindMobileQuickActions(){
       const toolsBtn = document.getElementById("btnMobileTools");
@@ -1825,31 +1901,26 @@
         });
       }
 
-      bindMobileAction("btnMobileUndo", "btnUndo");
       bindMobileAction("btnMobileClear", "btnClear");
+      bindMobileAction("btnMobileClearAll", "btnClearAll");
       bindMobileAction("btnMobileCenter", "btnCenter");
       bindMobileAction("btnMobileFlipH", "btnFlipH");
       bindMobileAction("btnMobileFlipV", "btnFlipV");
-      bindMobileAction("btnMobileBack", "btnToBack");
-      bindMobileAction("btnMobileFront", "btnToFront");
 
-      // Rotation mobile directe (pas de bouton desktop correspondant)
-      document.getElementById("btnMobileRotL")?.addEventListener("click", (e)=>{
+      // Quick buttons (toujours visibles, pas dans le panel)
+      document.getElementById("btnMobileQuickUndo")?.addEventListener("click", (e)=>{
         e.stopPropagation();
-        if(!selected){ showToast("Aucun élément sélectionné"); closeMobileTools(); return; }
-        pushUndo();
-        selected.rot -= 15;
-        selected.apply();
-        closeMobileTools();
+        document.getElementById("btnUndo").click();
       });
 
-      document.getElementById("btnMobileRotR")?.addEventListener("click", (e)=>{
+      document.getElementById("btnMobileQuickBack")?.addEventListener("click", (e)=>{
         e.stopPropagation();
-        if(!selected){ showToast("Aucun élément sélectionné"); closeMobileTools(); return; }
-        pushUndo();
-        selected.rot += 15;
-        selected.apply();
-        closeMobileTools();
+        document.getElementById("btnToBack").click();
+      });
+
+      document.getElementById("btnMobileQuickFront")?.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        document.getElementById("btnToFront").click();
       });
     }
 
@@ -1863,19 +1934,6 @@
         ph.classList.remove("hidden");
       }
     }
-
-    // Patcher addItem et removeItemByUid pour mettre à jour le placeholder
-    const _origRegisterItem = registerItem;
-    registerItem = function(item){
-      _origRegisterItem(item);
-      updatePlaceholder();
-    };
-
-    const _origRemoveItemByUid = removeItemByUid;
-    removeItemByUid = function(uid){
-      _origRemoveItemByUid(uid);
-      updatePlaceholder();
-    };
 
     // ===== Init =====
     resizeWorkspaceForMobile();
