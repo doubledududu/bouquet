@@ -1057,9 +1057,10 @@
         card.addEventListener("click", ()=>{
           pushUndo();
           const defaultSize = getDefaultItemSize();
-          const centerX = (ws.clientWidth / 2) - (defaultSize / 2);
-          const centerY = (ws.clientHeight / 2) - (defaultSize / 2);
-          addItem(item.id, centerX, centerY);
+          const wrap = ws.parentElement;
+          const visibleCenterX = wrap.scrollLeft + (wrap.clientWidth / 2) - (defaultSize / 2);
+          const visibleCenterY = wrap.scrollTop + (wrap.clientHeight / 2) - (defaultSize / 2);
+          addItem(item.id, visibleCenterX, visibleCenterY);
         });
 
         card.addEventListener("dragstart", (e)=>{
@@ -1790,8 +1791,9 @@
     document.getElementById("btnCenter").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
       pushUndo();
-      selected.x = (ws.clientWidth - selected.w)/2;
-      selected.y = (ws.clientHeight - selected.h)/2;
+      const wrap = ws.parentElement;
+      selected.x = wrap.scrollLeft + (wrap.clientWidth - selected.w) / 2;
+      selected.y = wrap.scrollTop + (wrap.clientHeight - selected.h) / 2;
       selected.apply();
     });
 
