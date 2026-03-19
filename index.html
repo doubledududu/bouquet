@@ -499,9 +499,10 @@
 
       .workwrap {
         order: 1;
-        padding: 8px;
-        overflow: visible;
-        min-height: auto;
+        padding: 0;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        height: calc(100vh - 200px);
       }
 
       aside {
@@ -513,12 +514,17 @@
       }
 
       .workspace {
-        width: 100%;
+        width: 1500px;
+        height: 1500px;
         max-width: none;
-        height: calc(100vh - 230px);
-        min-height: 520px;
-        margin: 0 auto;
-        overflow: hidden;
+        margin: 0;
+        overflow: visible;
+        border: none;
+        border-radius: 0;
+      }
+
+      .workspace::after {
+        display: none;
       }
 
       aside .section {
@@ -714,11 +720,6 @@
     @media (max-width: 600px) {
       header .btns {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .workspace {
-        height: calc(100vh - 210px);
-        min-height: 460px;
       }
 
       #palette .card {
@@ -1478,20 +1479,11 @@
     }
 
     function resizeWorkspaceForMobile(){
-      const isMobile = window.innerWidth <= 900;
-      if(isMobile){
-        ws.style.width = "100%";
-        ws.style.height = "";
-        zoom = 1;
-        ws.style.transform = "scale(1)";
-        ws.parentElement.style.height = "";
-      } else {
-        ws.style.width = "";
-        ws.style.height = "";
-        zoom = 1;
-        ws.style.transform = "scale(1)";
-        ws.parentElement.style.height = "";
-      }
+      ws.style.width = "";
+      ws.style.height = "";
+      zoom = 1;
+      ws.style.transform = "scale(1)";
+      ws.parentElement.style.height = "";
     }
 
     function getDefaultItemSize(){
@@ -1500,21 +1492,10 @@
     }
 
     function getMaxItemSize(){
-      if(window.innerWidth <= 900){
-        return Math.min(ws.clientWidth, ws.clientHeight) * 0.95;
-      }
       return 2000;
     }
 
     function getMoveBounds(itemW, itemH){
-      if(window.innerWidth <= 900){
-        const pad = 10;
-        return {
-          minX: pad, minY: pad,
-          maxX: ws.clientWidth - itemW - pad,
-          maxY: ws.clientHeight - itemH - pad
-        };
-      }
       return {
         minX: -200, minY: -200,
         maxX: ws.clientWidth - 20,
