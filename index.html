@@ -4,23 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Flash Compo - Crée ton propre bouquet !</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Josefin+Sans:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root { --bg:#36373e; --panel:#d8c1c7; --ink:#e7ffe9; --muted:#2e262e; --line:#b2c39c; --accent:#eac9eb; }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--ink); }
+    body { margin:0; font-family: 'Josefin Sans', sans-serif; background:var(--bg); color:var(--ink); }
     header {
-      background:#7b8c7d;
+      background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1773932813/Header_ge5kzz.png') left center / auto 100% no-repeat, linear-gradient(135deg, #8a9c8d 0%, #6e7f70 100%);
       padding:12px 16px;
       border-bottom:1px solid var(--line);
       display:flex;
       gap:12px;
       align-items:center;
       justify-content:flex-start;
+      min-height:54px;
     }
     header .left { display:flex; gap:12px; align-items:center; }
-    header .title { font-weight:900; color:#d8c1c7;}
-    header .hint { color:#000000; font-size:13px;}
-    header .hint.desktop-hint {}
+    header .title { font-family: 'Playfair Display', serif; font-weight:900; color:transparent; font-size: 20px; user-select:none; }
+    header .hint.desktop-hint { color:transparent; user-select:none; }
+    header .hint.desktop-hint .kbd { visibility:hidden; }
     header .hint.mobile-hint { display:none; }
     header .btns {
       display:flex;
@@ -74,21 +76,28 @@
       white-space:nowrap;
     }
 
-    .exportBtn{
-      background:#dff1e3;
-      color:#1f2a20;
-      border-color: rgba(122,162,255,.6);
-      box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset, 0 4px 12px rgba(0,0,0,.10);
-      font-weight:700;
+    .imgBtn{
+      background:transparent;
+      border:none;
+      padding:0;
+      border-radius:0;
+      box-shadow:none;
+      min-height:auto;
     }
 
-    .exportBtn img{
-      width:18px;
-      height:18px;
+    .imgBtn:hover{
+      border-color:transparent;
+      opacity:0.85;
+    }
+
+    .imgBtn img{
+      width:180px;
+      height:auto;
+      object-fit:contain;
     }
 
     main { display:grid; grid-template-columns: 320px 1fr; height: calc(100vh - 54px); }
-    aside { border-right:1px solid var(--line); background:var(--panel); padding:12px; overflow:auto; }
+    aside { border-right:1px solid var(--line); background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1773931506/panneau_lateralv2_u35inw.png') top center / 100% auto no-repeat, linear-gradient(135deg, #e0ccd2 0%, #c4aab1 100%); padding:12px; overflow:auto; }
     .section { margin-bottom:14px; }
     .section h3 { margin:0 0 8px 0; font-size:13px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
     .grid {
@@ -120,6 +129,8 @@
       padding:12px;
       overflow:auto;
       -webkit-overflow-scrolling: touch;
+      background: repeating-conic-gradient(from 90deg, rgba(0,0,0,.05) 0 25%, rgba(0,0,0,.02) 0 50%) 0 / 40px 40px;
+      background-color: var(--bg);
     }
     .workspace {
       position:relative;
@@ -127,12 +138,12 @@
       height: 900px;
       margin:0 auto;
       touch-action: pan-x pan-y;
-      background: repeating-conic-gradient(from 90deg, rgba(0,0,0,.05) 0 25%, rgba(0,0,0,.02) 0 50%) 0 / 40px 40px;
-      border:1px solid var(--line);
-      border-radius:16px;
+      background: transparent;
+      border:none;
+      border-radius:0;
     }
     .workspace::after{
-      content:""; position:absolute; inset:14px; border:1px dashed rgba(255,255,255,.12); border-radius:12px; pointer-events:none;
+      display:none;
     }
     .item {
       position:absolute;
@@ -405,6 +416,13 @@
         box-shadow: 0 3px 10px rgba(0,0,0,.10);
       }
 
+      .imgBtn{
+        min-width:auto;
+        min-height:auto;
+        padding:0;
+        box-shadow:none;
+      }
+
       .workwrap {
         padding:12px 210px 12px 12px;
       }
@@ -510,7 +528,7 @@
         border: none;
         border-top: 1px solid var(--line);
         padding: 8px 10px 90px 10px;
-        background: var(--panel);
+        background: linear-gradient(135deg, #e0ccd2 0%, #c4aab1 100%);
       }
 
       .workspace {
@@ -535,7 +553,7 @@
         z-index: 40;
         margin: 0;
         padding: 8px 10px 10px 10px;
-        background: var(--panel);
+        background: linear-gradient(135deg, #e0ccd2 0%, #c4aab1 100%);
         border-top: 1px solid var(--line);
         box-shadow: 0 -6px 18px rgba(0,0,0,.16);
       }
@@ -766,49 +784,40 @@
       <div class="hint mobile-hint">Touche un flash pour l'ajouter. Glisse pour déplacer. Deux doigts pour pivoter et redimensionner.</div>
     </div>
     <div class="btns">
-      <button class="toolBtn" id="btnUndo">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773849937/cancel_wox4da.png" alt="">
-        <span>Annuler</span>
+      <button class="toolBtn imgBtn" id="btnUndo">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933543/bout_ctrlZ_llnb8q.png" alt="Annuler">
       </button>
 
-      <button class="toolBtn" id="btnClear">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
-        <span>Effacer</span>
+      <button class="toolBtn imgBtn" id="btnClear">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933543/bout_cancel_dlrase.png" alt="Effacer">
       </button>
 
-      <button class="toolBtn" id="btnClearAll">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773917531/bin_all_cpndwf.png" alt="">
-        <span>Tout effacer</span>
+      <button class="toolBtn imgBtn" id="btnClearAll">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933547/bout_wipe_vnsk3k.png" alt="Tout effacer">
       </button>
 
-      <button class="toolBtn" id="btnCenter">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/center_fmldze.png" alt="">
-        <span>Centrer</span>
+      <button class="toolBtn imgBtn" id="btnCenter">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933766/bout_center_rbygvd.png" alt="Centrer">
       </button>
 
-      <button class="toolBtn" id="btnFlipH">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/flip_H_mdaypu.png" alt="">
-        <span>Miroir H</span>
+      <button class="toolBtn imgBtn" id="btnFlipH">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933544/bout_mirorH_mk8zg4.png" alt="Miroir H">
       </button>
 
-      <button class="toolBtn" id="btnFlipV">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334752/flip_V_q3v1x1.png" alt="">
-        <span>Miroir V</span>
+      <button class="toolBtn imgBtn" id="btnFlipV">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933546/bout_mirorV_w3tuh8.png" alt="Miroir V">
       </button>
 
-      <button class="toolBtn" id="btnToBack">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334749/backward_oxnwqt.png" alt="">
-        <span>Reculer</span>
+      <button class="toolBtn imgBtn" id="btnToBack">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933543/bout_back_jkenaw.png" alt="Reculer">
       </button>
 
-      <button class="toolBtn" id="btnToFront">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/forward_mmncyj.png" alt="">
-        <span>Avancer</span>
+      <button class="toolBtn imgBtn" id="btnToFront">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933544/bout_forward_yicvpa.png" alt="Avancer">
       </button>
 
-      <button class="toolBtn primary exportBtn" id="btnExportPNG">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334751/save_woziav.png" alt="">
-        <span>Exporter</span>
+      <button class="toolBtn imgBtn" id="btnExportPNG">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773934073/bout_export_rda0pp.png" alt="Exporter">
       </button>
     </div>
   </header>
@@ -820,7 +829,7 @@
         <h3>Palette</h3>
         <div class="grid" id="palette"></div>
         <div class="paletteSlogan">
-          Personnalise ton propre bouquet !
+          Flashs originaux © Captain Pooky — Studio 777
         </div>
       </div>
     </aside>
@@ -865,7 +874,7 @@
       </button>
 
       <button class="mobileActionBtn" id="btnMobileClearAll">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773917531/bin_all_cpndwf.png" alt="">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773918224/bin_all_suq4b5.png" alt="">
         <span>Tout effacer</span>
       </button>
 
@@ -1057,10 +1066,16 @@
         card.addEventListener("click", ()=>{
           pushUndo();
           const defaultSize = getDefaultItemSize();
-          const wrap = ws.parentElement;
-          const visibleCenterX = wrap.scrollLeft + (wrap.clientWidth / 2) - (defaultSize / 2);
-          const visibleCenterY = wrap.scrollTop + (wrap.clientHeight / 2) - (defaultSize / 2);
-          addItem(item.id, visibleCenterX, visibleCenterY);
+          let cx, cy;
+          if(window.innerWidth <= 900){
+            const wrap = ws.parentElement;
+            cx = wrap.scrollLeft + (wrap.clientWidth / 2) - (defaultSize / 2);
+            cy = wrap.scrollTop + (wrap.clientHeight / 2) - (defaultSize / 2);
+          } else {
+            cx = (ws.clientWidth / 2) - (defaultSize / 2);
+            cy = (ws.clientHeight / 2) - (defaultSize / 2);
+          }
+          addItem(item.id, cx, cy);
         });
 
         card.addEventListener("dragstart", (e)=>{
@@ -1791,9 +1806,14 @@
     document.getElementById("btnCenter").addEventListener("click", ()=>{
       if(!selected){ showToast("Aucun élément sélectionné"); return; }
       pushUndo();
-      const wrap = ws.parentElement;
-      selected.x = wrap.scrollLeft + (wrap.clientWidth - selected.w) / 2;
-      selected.y = wrap.scrollTop + (wrap.clientHeight - selected.h) / 2;
+      if(window.innerWidth <= 900){
+        const wrap = ws.parentElement;
+        selected.x = wrap.scrollLeft + (wrap.clientWidth - selected.w) / 2;
+        selected.y = wrap.scrollTop + (wrap.clientHeight - selected.h) / 2;
+      } else {
+        selected.x = (ws.clientWidth - selected.w) / 2;
+        selected.y = (ws.clientHeight - selected.h) / 2;
+      }
       selected.apply();
     });
 
