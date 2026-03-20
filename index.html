@@ -287,7 +287,7 @@
     .ws-placeholder span{
       font-size:15px;
       font-weight:600;
-      color:rgba(255,255,255,.25);
+      color:rgba(255,255,255,.35);
       text-align:center;
       padding:20px;
       line-height:1.4;
@@ -453,7 +453,7 @@
       .ws-placeholder-mobile{ display:block; }
 
       header {
-        background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774020557/Header_mobile_yg9rkp.jpg') center center / cover no-repeat;
+        background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774021131/Header_mobile_ieyzxi.jpg') center center / cover no-repeat;
         align-items: flex-start;
         flex-direction: column;
         gap: 0;
@@ -473,8 +473,6 @@
       header .title {
         color: transparent;
         font-size: 0;
-      }
-        font-size: 14px;
       }
 
       header .hint {
@@ -700,17 +698,34 @@
         left:12px;
         right:auto;
         bottom:145px;
-        min-height:48px;
-        padding:12px 16px;
-        background:#dff1e3;
-        color:#1f2a20;
-        border-color: rgba(122,162,255,.6);
-        box-shadow: 0 0 0 2px rgba(122,162,255,.12) inset, 0 6px 18px rgba(0,0,0,.18);
-        font-weight:700;
+        min-height:auto;
+        padding:0;
+        background:transparent;
+        border:none;
+        box-shadow:none;
         z-index:60;
       }
 
-      .mobileExportFab img,
+      .imgBtnMobile{
+        background:transparent !important;
+        border:none !important;
+        padding:0 !important;
+        box-shadow:none !important;
+        min-height:auto !important;
+        min-width:auto !important;
+      }
+
+      .imgBtnMobile img{
+        width:140px !important;
+        height:auto !important;
+        object-fit:contain;
+        pointer-events:none;
+      }
+
+      .mobileExportFab.imgBtnMobile img{
+        width:140px !important;
+      }
+
       .mobileActionBtn img{
         width:16px;
         height:16px;
@@ -844,7 +859,7 @@
       <div class="workspace" id="ws" aria-label="workspace">
         <div class="ws-placeholder" id="wsPlaceholder">
           <span class="ws-placeholder-desktop">Glisse un flash ici pour commencer</span>
-          <span class="ws-placeholder-mobile">Choisis un flash ci-dessous pour commencer</span>
+          <span class="ws-placeholder-mobile">Pour commencer, touche un flash dans la palette</span>
         </div>
       </div>
       <div class="dropNote"></div>
@@ -854,9 +869,8 @@
 
   <!-- Mobile FABs -->
   <div class="mobileFabWrap">
-    <button class="mobileExportFab" id="btnMobileExport">
-      <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334751/save_woziav.png" alt="">
-      <span>Exporter</span>
+    <button class="mobileExportFab imgBtnMobile" id="btnMobileExport">
+      <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773934073/bout_export_rda0pp.png" alt="Exporter">
     </button>
 
     <!-- Quick actions toujours visibles -->
@@ -874,29 +888,24 @@
 
     <!-- Panel déroulant -->
     <div class="mobileToolsPanel" id="mobileToolsPanel">
-      <button class="mobileActionBtn" id="btnMobileClear">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/corbeille_i54gwz.png" alt="">
-        <span>Effacer</span>
+      <button class="mobileActionBtn imgBtnMobile" id="btnMobileClear">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933543/bout_cancel_dlrase.png" alt="Effacer">
       </button>
 
-      <button class="mobileActionBtn" id="btnMobileClearAll">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773918224/bin_all_suq4b5.png" alt="">
-        <span>Tout effacer</span>
+      <button class="mobileActionBtn imgBtnMobile" id="btnMobileClearAll">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933547/bout_wipe_vnsk3k.png" alt="Tout effacer">
       </button>
 
-      <button class="mobileActionBtn" id="btnMobileCenter">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/center_fmldze.png" alt="">
-        <span>Centrer</span>
+      <button class="mobileActionBtn imgBtnMobile" id="btnMobileCenter">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933766/bout_center_rbygvd.png" alt="Centrer">
       </button>
 
-      <button class="mobileActionBtn" id="btnMobileFlipH">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334750/flip_H_mdaypu.png" alt="">
-        <span>Miroir H</span>
+      <button class="mobileActionBtn imgBtnMobile" id="btnMobileFlipH">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933544/bout_mirorH_mk8zg4.png" alt="Miroir H">
       </button>
 
-      <button class="mobileActionBtn" id="btnMobileFlipV">
-        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773334752/flip_V_q3v1x1.png" alt="">
-        <span>Miroir V</span>
+      <button class="mobileActionBtn imgBtnMobile" id="btnMobileFlipV">
+        <img src="https://res.cloudinary.com/diz2tt1gw/image/upload/v1773933546/bout_mirorV_w3tuh8.png" alt="Miroir V">
       </button>
     </div>
 
