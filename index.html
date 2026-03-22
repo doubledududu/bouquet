@@ -615,14 +615,14 @@
         flex: 0 0 auto;
       }
 
-      #palette, #palettePots {
+      #palette, #palettePots, #paletteFleurs {
         display: flex;
         gap: 8px;
         overflow: visible;
         padding: 0;
       }
 
-      #palette .card, #palettePots .card {
+      #palette .card, #palettePots .card, #paletteFleurs .card {
         flex: 0 0 80px;
         width: 80px;
         height: 80px;
@@ -632,7 +632,7 @@
         scroll-snap-align: start;
       }
 
-      #palette .card img, #palettePots .card img {
+      #palette .card img, #palettePots .card img, #paletteFleurs .card img {
         width: 54px;
         height: 54px;
       }
@@ -801,14 +801,14 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      #palette .card {
+      #palette .card, #palettePots .card, #paletteFleurs .card {
         flex: 0 0 70px;
         width: 70px;
         height: 70px;
         min-height: auto;
       }
 
-      #palette .card img {
+      #palette .card img, #palettePots .card img, #paletteFleurs .card img {
         width: 46px;
         height: 46px;
       }
@@ -889,7 +889,9 @@
         <div class="paletteScroll">
           <div class="paletteCat">Pots</div>
           <div class="grid" id="palettePots"></div>
-          <div class="paletteCat">Végétaux</div>
+          <div class="paletteCat">Fleurs</div>
+          <div class="grid" id="paletteFleurs"></div>
+          <div class="paletteCat">Feuillage</div>
           <div class="grid" id="palette"></div>
         </div>
         <div class="paletteSlogan">
@@ -977,61 +979,73 @@
       {
         id: "flash1",
         label: "Flash 1",
+        cat: "fleurs",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_8_jqtvbc.png"
       },
       {
         id: "flash2",
         label: "Flash 2",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_2_tmx0lt.png"
       },
       {
         id: "flash3",
         label: "Flash 3",
+        cat: "fleurs",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_4_khoghv.png"
       },
       {
         id: "flash4",
         label: "Flash 4",
+        cat: "fleurs",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_7_t7bd5k.png"
       },
       {
         id: "flash5",
         label: "Flash 5",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_9_ovgvb0.png"
       },
       {
         id: "flash6",
         label: "Flash 6",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_6_igd8ve.png"
       },
       {
         id: "flash7",
         label: "Flash 7",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_10_efmvyu.png"
       },
       {
         id: "flash8",
         label: "Flash 8",
+        cat: "fleurs",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_5_y3va5r.png"
       },
       {
         id: "flash9",
         label: "Flash 9",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_11_y2x4qy.png"
       },
       {
         id: "flash10",
         label: "Flash 10",
+        cat: "fleurs",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_13_dqngth.png"
       },
       {
         id: "flash11",
         label: "Flash 11",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_12.658Z_govqpu.png"
       },
       {
         id: "flash12",
         label: "Flash 12",
+        cat: "feuillage",
         src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_1_i3ndkd.png"
       },
       {
@@ -1051,6 +1065,7 @@
     const ws = document.getElementById("ws");
     const palette = document.getElementById("palette");
     const palettePots = document.getElementById("palettePots");
+    const paletteFleurs = document.getElementById("paletteFleurs");
     const toast = document.getElementById("toast");
 
     let selected = null;
@@ -1152,6 +1167,7 @@
     function renderPalette(){
       palette.innerHTML = "";
       palettePots.innerHTML = "";
+      paletteFleurs.innerHTML = "";
 
       for(const item of LIB){
         const card = document.createElement("div");
@@ -1187,6 +1203,8 @@
 
         if(item.cat === "pots"){
           palettePots.appendChild(card);
+        } else if(item.cat === "fleurs"){
+          paletteFleurs.appendChild(card);
         } else {
           palette.appendChild(card);
         }
