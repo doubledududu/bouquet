@@ -457,6 +457,8 @@
     @media (max-width: 900px) {
       body {
         overflow-x: hidden;
+        background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774199279/bg_texture2_ayjtuo.jpg') repeat;
+        background-color: var(--bg);
       }
 
       .rotateHandle,
@@ -534,7 +536,8 @@
       main {
         display: flex;
         flex-direction: column;
-        height: auto;
+        height: calc(100vh - 60px);
+        overflow: hidden;
       }
 
       .workwrap {
@@ -542,7 +545,7 @@
         padding: 0;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
-        height: calc(100vh - 60px);
+        flex: 1;
       }
 
       aside {
@@ -664,7 +667,7 @@
         align-items:flex-end;
         position:fixed;
         right:12px;
-        bottom:145px;
+        bottom:120px;
         z-index:60;
         pointer-events:none;
       }
@@ -739,7 +742,7 @@
         position:fixed;
         left:12px;
         right:auto;
-        bottom:145px;
+        bottom:120px;
         min-height:auto;
         padding:0;
         background:transparent;
