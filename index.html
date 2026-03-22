@@ -1501,6 +1501,7 @@
           const scaleRatio = currentDistance / touchGesture.startDistance;
           const newSize = clamp(touchGesture.baseW * scaleRatio, 30, getMaxItemSize());
           const angleDelta = currentAngle - touchGesture.startAngle;
+          const correctedAngleDelta = (item.flipX !== item.flipY) ? -angleDelta : angleDelta;
           const moveCenterX = currentCenterX - touchGesture.startCenterX;
           const moveCenterY = currentCenterY - touchGesture.startCenterY;
 
@@ -1511,7 +1512,7 @@
 
           item.w = newSize;
           item.h = newSize;
-          item.rot = touchGesture.baseRot + angleDelta;
+          item.rot = touchGesture.baseRot + correctedAngleDelta;
 
           const newCenterX = touchGesture.baseCenterX + moveCenterX;
           const newCenterY = touchGesture.baseCenterY + moveCenterY;
@@ -1670,16 +1671,24 @@
           e.preventDefault();
           if(selected){
             pushUndo();
-            const clone = addItem(selected.libId, selected.x + 18, selected.y + 18, true);
-            clone.w = selected.w; clone.h = selected.h;
-            clone.rot = selected.rot;
-            clone.flipX = selected.flipX;
-            clone.flipY = selected.flipY;
-            clone.name = selected.name;
+            const orig = {
+              libId: selected.libId,
+              x: selected.x, y: selected.y,
+              w: selected.w, h: selected.h,
+              rot: selected.rot,
+              flipX: selected.flipX,
+              flipY: selected.flipY,
+              name: selected.name,
+              z: parseInt(selected.el.style.zIndex || "1", 10)
+            };
+            const clone = addItem(orig.libId, orig.x + 18, orig.y + 18, true);
+            clone.w = orig.w; clone.h = orig.h;
+            clone.rot = orig.rot;
+            clone.flipX = orig.flipX;
+            clone.flipY = orig.flipY;
+            clone.name = orig.name;
             clone.apply();
             clone.el.style.zIndex = String(++zCounter);
-            const badge = clone.el.querySelector(".badge");
-            if(badge) badge.textContent = clone.name || libById(clone.libId)?.label || "Item";
             showToast("Dupliqué");
           }
           return;
