@@ -100,19 +100,41 @@
     aside { border-right:1px solid var(--line); background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1773931506/panneau_lateralv2_u35inw.png') top center / 100% auto no-repeat, linear-gradient(135deg, #e0ccd2 0%, #c4aab1 100%); padding:12px; overflow:auto; }
     .section { margin-bottom:14px; }
     .section h3 { margin:0 0 8px 0; font-size:13px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
+    .paletteScroll {
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+    }
+    .paletteCat {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 15px;
+      color: var(--muted);
+      text-align: center;
+      padding: 8px 0;
+      margin: 4px 0;
+      border-top: 1px solid #b48894;
+      border-bottom: 1px solid #b48894;
+    }
+    .paletteCat:first-child {
+      margin-top: 0;
+    }
     .grid {
       display:grid;
       grid-template-columns: repeat(2, 1fr);
       gap:10px;
+      justify-items: center;
+      padding: 10px 0;
     }
     .card {
-      background:#7b8c7d; border:1px solid var(--line); border-radius:12px;
+      background:#ece1e4; border:1px solid #b48894; border-radius:50%;
       padding:12px; cursor:pointer; user-select:none;
-      display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center;
-      min-height:130px;
+      display:flex; align-items:center; justify-content:center;
+      width:130px; height:130px;
     }
     .card:hover { border-color:#ffffff; }
-    .card img { width:96px; height:96px; object-fit:contain; display:block; }
+    .card img { width:90px; height:90px; object-fit:contain; display:block; }
     .card .label { font-size:12px; font-weight: 600; color:var(--muted); text-align:center; }
 
     .controls { display:grid; gap:8px; }
@@ -129,7 +151,7 @@
       padding:12px;
       overflow:auto;
       -webkit-overflow-scrolling: touch;
-      background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774018549/bg_texture2_vias9f.jpg') repeat;
+      background: url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774199279/bg_texture2_ayjtuo.jpg') repeat;
       background-color: var(--bg);
     }
     .workspace {
@@ -223,11 +245,7 @@
     }
 
     .badge {
-      position:absolute; top:-10px; left:-10px;
-      font-size:11px; color:#0b0c10;
-      background:rgba(122,162,255,.9);
-      padding:2px 6px; border-radius:999px;
-      pointer-events:none;
+      display:none;
     }
     .dropNote {
       color:var(--muted); font-size:12px; text-align:center; margin-top:10px;
@@ -287,7 +305,7 @@
     .ws-placeholder span{
       font-size:15px;
       font-weight:600;
-      color:rgba(255,255,255,.35);
+      color:rgba(0,0,0,.3);
       text-align:center;
       padding:20px;
       line-height:1.4;
@@ -570,7 +588,10 @@
         display: none;
       }
 
-      #palette {
+      .paletteScroll {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
         display: flex;
         gap: 8px;
         overflow-x: auto;
@@ -578,24 +599,42 @@
         padding-bottom: 2px;
         scroll-snap-type: x proximity;
         -webkit-overflow-scrolling: touch;
+        align-items: center;
       }
 
-      #palette .card {
-        flex: 0 0 92px;
-        min-height: 92px;
+      .paletteCat {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        font-size: 11px;
+        padding: 4px 2px;
+        border: none;
+        border-left: 1px solid #b48894;
+        border-right: 1px solid #b48894;
+        margin: 0;
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+
+      #palette, #palettePots {
+        display: flex;
+        gap: 8px;
+        overflow: visible;
+        padding: 0;
+      }
+
+      #palette .card, #palettePots .card {
+        flex: 0 0 80px;
+        width: 80px;
+        height: 80px;
+        min-height: auto;
         padding: 6px;
-        border-radius: 12px;
+        border-radius: 50%;
         scroll-snap-align: start;
       }
 
-      #palette .card img {
-        width: 46px;
-        height: 46px;
-      }
-
-      #palette .card .label {
-        font-size: 10px;
-        line-height: 1.1;
+      #palette .card img, #palettePots .card img {
+        width: 54px;
+        height: 54px;
       }
 
       .row {
@@ -763,17 +802,15 @@
       }
 
       #palette .card {
-        flex: 0 0 84px;
-        min-height: 84px;
+        flex: 0 0 70px;
+        width: 70px;
+        height: 70px;
+        min-height: auto;
       }
 
       #palette .card img {
-        width: 40px;
-        height: 40px;
-      }
-
-      #palette .card .label {
-        font-size: 9px;
+        width: 46px;
+        height: 46px;
       }
 
       .exportBtn{
@@ -849,7 +886,12 @@
     <aside>
       <div class="section">
         <h3>Palette</h3>
-        <div class="grid" id="palette"></div>
+        <div class="paletteScroll">
+          <div class="paletteCat">Pots</div>
+          <div class="grid" id="palettePots"></div>
+          <div class="paletteCat">Végétaux</div>
+          <div class="grid" id="palette"></div>
+        </div>
         <div class="paletteSlogan">
           Flashs originaux © Captain Pooky — Studio 777
         </div>
@@ -933,34 +975,82 @@
   <script>
     const LIB = [
       {
-        id: "Branche",
-        label: "Branche",
-        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067820/619521521_882257137724350_4229399370122049159_n_un4f0d.png"
+        id: "flash1",
+        label: "Flash 1",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_8_jqtvbc.png"
       },
       {
-        id: "Liane Torsade",
-        label: "Liane Torsade",
-        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067819/616742827_1779079892762636_82883859183779307_n_mg2klm.png"
+        id: "flash2",
+        label: "Flash 2",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_2_tmx0lt.png"
       },
       {
-        id: "Grenouille",
-        label: "Grenouille",
-        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772101915/617055237_1374553773884231_136022804121882196_n_makez9.png"
+        id: "flash3",
+        label: "Flash 3",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_4_khoghv.png"
       },
       {
-        id: "Monstera",
-        label: "Monstera",
-        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067825/619367847_1197128552086410_1477195909441759372_n_dykibo.png"
+        id: "flash4",
+        label: "Flash 4",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_7_t7bd5k.png"
       },
       {
-        id: "Pillon",
-        label: "Pillon",
-        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1772067852/616334821_1552614829401272_758795181194598895_n_wcmyqa.png"
+        id: "flash5",
+        label: "Flash 5",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_9_ovgvb0.png"
+      },
+      {
+        id: "flash6",
+        label: "Flash 6",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_6_igd8ve.png"
+      },
+      {
+        id: "flash7",
+        label: "Flash 7",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_10_efmvyu.png"
+      },
+      {
+        id: "flash8",
+        label: "Flash 8",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188545/Fichier_2026-03-21T23_53_39_5_y3va5r.png"
+      },
+      {
+        id: "flash9",
+        label: "Flash 9",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_11_y2x4qy.png"
+      },
+      {
+        id: "flash10",
+        label: "Flash 10",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_13_dqngth.png"
+      },
+      {
+        id: "flash11",
+        label: "Flash 11",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_12.658Z_govqpu.png"
+      },
+      {
+        id: "flash12",
+        label: "Flash 12",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_1_i3ndkd.png"
+      },
+      {
+        id: "pot1",
+        label: "Pot 1",
+        cat: "pots",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188546/Fichier_2026-03-21T23_53_39_nyfqwu.png"
+      },
+      {
+        id: "pot2",
+        label: "Pot 2",
+        cat: "pots",
+        src: "https://res.cloudinary.com/diz2tt1gw/image/upload/v1774188547/Fichier_2026-03-21T23_53_39_3_na2jtj.png"
       },
     ];
 
     const ws = document.getElementById("ws");
     const palette = document.getElementById("palette");
+    const palettePots = document.getElementById("palettePots");
     const toast = document.getElementById("toast");
 
     let selected = null;
@@ -1061,6 +1151,8 @@
 
     function renderPalette(){
       palette.innerHTML = "";
+      palettePots.innerHTML = "";
+
       for(const item of LIB){
         const card = document.createElement("div");
         card.className = "card";
@@ -1072,12 +1164,7 @@
         img.src = item.src;
         img.alt = item.label;
 
-        const label = document.createElement("div");
-        label.className = "label";
-        label.textContent = item.label;
-
         card.appendChild(img);
-        card.appendChild(label);
 
         card.addEventListener("click", ()=>{
           pushUndo();
@@ -1098,7 +1185,11 @@
           e.dataTransfer.setData("text/plain", item.id);
         });
 
-        palette.appendChild(card);
+        if(item.cat === "pots"){
+          palettePots.appendChild(card);
+        } else {
+          palette.appendChild(card);
+        }
       }
     }
 
