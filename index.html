@@ -175,17 +175,17 @@
       touch-action:none;
     }
     .item:active { cursor:grabbing; }
-    .item.selected { outline:2px solid rgba(122,162,255,.9); outline-offset:4px; border-radius:10px; }
+    .item.selected { outline:2px solid #8bb5e5; outline-offset:4px; border-radius:10px; }
     .rotateHandle{
       position:absolute;
       width:26px;
       height:26px;
       right:-13px;
       top:-13px;
-      border-radius:50%;
-      background:#7b8c7d;
-      border:2px solid #ffffff;
-      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      border-radius:0;
+      background:url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774302321/handle_rotate_av8ynz.png') center / contain no-repeat;
+      border:none;
+      box-shadow:none;
       display:none;
       z-index:2;
       cursor:grab;
@@ -196,10 +196,10 @@
       height:26px;
       right:-13px;
       bottom:-13px;
-      border-radius:50%;
-      background:#7b8c7d;
-      border:2px solid #ffffff;
-      box-shadow:0 2px 8px rgba(0,0,0,.25);
+      border-radius:0;
+      background:url('https://res.cloudinary.com/diz2tt1gw/image/upload/v1774302321/handle_scale_jw4vxe.png') center / contain no-repeat;
+      border:none;
+      box-shadow:none;
       display:none;
       z-index:2;
       cursor:nwse-resize;
@@ -207,37 +207,9 @@
 
     .item.selected .resizeHandle{ display:block; }
 
-    .resizeHandle::before{
-      content:"↘";
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:15px;
-      font-weight:700;
-      color:#111111;
-      line-height:1;
-    }
-
     .resizeHandle:active{ cursor:nwse-resize; }
 
     .item.selected .rotateHandle{ display:block; }
-
-    .rotateHandle::before{
-      content:"↻";
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:15px;
-      font-weight:700;
-      color:#111111;
-      line-height:1;
-    }
-
-    .rotateHandle:active{ cursor:grabbing; }
 
     .item img { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; }
     .item.touch-blocked {
